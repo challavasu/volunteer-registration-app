@@ -1947,7 +1947,10 @@
                 console.log('📦 API Response:', result);
                 if (result && result.data) {
                     console.log('✓ Campaign data received:', result.data);
-                    openCampaignModal(result.data);
+                    console.log('📞 About to call openCampaignModal with:', result.data);
+                    const campaignData = result.data;
+                    console.log('🔄 Calling openCampaignModal with campaignData:', campaignData);
+                    openCampaignModal(campaignData);
                 } else {
                     console.error('✗ No campaign data in response');
                     showToast('Error loading campaign', 'error');
