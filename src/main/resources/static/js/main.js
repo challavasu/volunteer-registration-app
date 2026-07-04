@@ -83,6 +83,22 @@ function formatDateTime(dateStr) {
     });
 }
 
+// Get CSRF token from meta tag or cookie
+function getCsrfToken() {
+    const token = document.querySelector('meta[name="_csrf"]');
+    if (token) return token.getAttribute('content');
+
+    const headerName = document.querySelector('meta[name="_csrf_header"]');
+    if (!headerName) return '';
+
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'XSRF-TOKEN') return decodeURIComponent(value);
+    }
+    return '';
+}
+
 // API Helper Functions
 async function apiGet(url) {
     try {
@@ -96,10 +112,15 @@ async function apiGet(url) {
 
 async function apiPost(url, data) {
     try {
+        const headers = { 'Content-Type': 'application/json' };
+        const csrfToken = getCsrfToken();
+        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            headers: headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
         });
         return await response.json();
     } catch (error) {
@@ -110,10 +131,15 @@ async function apiPost(url, data) {
 
 async function apiPut(url, data = {}) {
     try {
+        const headers = { 'Content-Type': 'application/json' };
+        const csrfToken = getCsrfToken();
+        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+
         const response = await fetch(url, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
+            headers: headers,
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
         });
         return await response.json();
     } catch (error) {
@@ -124,8 +150,14 @@ async function apiPut(url, data = {}) {
 
 async function apiDelete(url) {
     try {
+        const headers = {};
+        const csrfToken = getCsrfToken();
+        if (csrfToken) headers['X-CSRF-TOKEN'] = csrfToken;
+
         const response = await fetch(url, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: headers,
+            credentials: 'same-origin'
         });
         return await response.json();
     } catch (error) {
