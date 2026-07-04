@@ -1973,9 +1973,14 @@
                 active: document.getElementById('campaignActive').checked
             };
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(id ? `/api/campaigns/${id}` : '/api/campaigns', {
                     method: id ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
@@ -2013,7 +2018,8 @@
         function openCloneCampaignModal(campaignId, campaignName, startDate) {
             document.getElementById('cloneSourceCampaignId').value = campaignId;
             document.getElementById('cloneSourceName').value = campaignName;
-            document.getElementById('cloneNewName').value = campaignName + ' (Copy)';
+            const timestamp = new Date().getTime();
+            document.getElementById('cloneNewName').value = campaignName + ' (Copy ' + timestamp + ')';
             
             // Set default new start date to today or the original start date if in the future
             const today = new Date().toISOString().split('T')[0];
@@ -2145,9 +2151,14 @@
                 inactive: document.getElementById('jobInactive').checked
             };
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(id ? `/api/jobs/${id}` : '/api/jobs', {
                     method: id ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
@@ -2159,7 +2170,8 @@
         function openCloneJobModal(jobId, jobName) {
             document.getElementById('cloneSourceJobId').value = jobId;
             document.getElementById('cloneSourceJobName').value = jobName;
-            document.getElementById('cloneNewJobName').value = jobName + ' (Copy)';
+            const timestamp = new Date().getTime();
+            document.getElementById('cloneNewJobName').value = jobName + ' (Copy ' + timestamp + ')';
             openModal('cloneJobModal');
         }
 
@@ -2331,9 +2343,14 @@
                 description: document.getElementById('shiftDescription').value
             };
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(id ? `/api/shifts/${id}` : '/api/shifts', {
                     method: id ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
@@ -2454,9 +2471,14 @@
                 active: true
             };
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(id ? `/api/volunteers/${id}` : '/api/volunteers/register', {
                     method: id ? 'PUT' : 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
@@ -3168,10 +3190,15 @@
             try {
                 const url = id ? `/api/email-templates/${id}` : '/api/email-templates';
                 const method = id ? 'PUT' : 'POST';
-                
+                const csrfToken = getCsrfToken();
+
                 const res = await fetch(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
                 
@@ -3549,9 +3576,14 @@
 
                 console.log('Saving user with URL:', url, 'Method:', method, 'Data:', data);
 
+                const csrfToken = getCsrfToken();
                 const res = await fetch(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify(data)
                 });
 
