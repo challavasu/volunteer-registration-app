@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Check-In - VolunteerHub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <style>
+        .checkin-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .checkin-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .checkin-header h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .checkin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .checkin-tab {
+            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .checkin-tab.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .checkin-tab:hover:not(.active) {
+            border-color: var(--primary-color);
+        }
+        .checkin-panel {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+        }
+        .checkin-panel.active {
+            display: block;
+        }
+        .code-input-section {
+            text-align: center;
+        }
+        .code-input {
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 8px;
+            padding: 16px 24px;
+            border: 3px solid var(--border-color);
+            border-radius: 12px;
+            width: 280px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .code-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        .checkin-btn {
+            margin-top: 20px;
+            padding: 16px 48px;
+            font-size: 1.1rem;
+        }
+        #qr-reader {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .scanner-section {
+            text-align: center;
+        }
+        .result-card {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .result-card.success {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+        }
+        .result-card.error {
+            background: #ffebee;
+            border: 2px solid #f44336;
+        }
+        .result-card.info {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+        }
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        .result-card.success .result-icon { color: #4caf50; }
+        .result-card.error .result-icon { color: #f44336; }
+        .result-card.info .result-icon { color: #2196f3; }
+        .volunteer-info {
+            margin-top: 16px;
+            text-align: left;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .volunteer-info h3 {
+            margin-bottom: 12px;
+            color: var(--primary-color);
+        }
+        .volunteer-info p {
+            margin: 6px 0;
+            color: var(--text-secondary);
+        }
+        .volunteer-info strong {
+            color: var(--text-primary);
+        }
+        .checkin-list {
+            margin-top: 20px;
+        }
+        .checkin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .checkin-item.checked-in {
+            background: #e8f5e9;
+        }
+        .checkin-item-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 0.95rem;
+        }
+        .checkin-item-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-badge.pending { background: #fff3e0; color: #f57c00; }
+        .status-badge.checked-in { background: #e8f5e9; color: #388e3c; }
+        .campaign-selector {
+            margin-bottom: 20px;
+        }
+        .campaign-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .stats-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            flex: 1;
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 4px;
+        }
+        .stat-card p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .quick-checkin-btn {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <span>VolunteerHub</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/admin">Admin</a></li>
+                <li><a href="/checkin" class="active">Check-In</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="checkin-container">
+        <div class="checkin-header">
+            <h1><i class="fas fa-qrcode"></i> Volunteer Check-In</h1>
+            <p>Scan QR code or enter check-in code to check in volunteers</p>
+        </div>
+
+        <div class="checkin-tabs">
+            <button class="checkin-tab active" onclick="showTab('code')">
+                <i class="fas fa-keyboard"></i> Enter Code
+            </button>
+            <button class="checkin-tab" onclick="showTab('scanner')">
+                <i class="fas fa-qrcode"></i> Scan QR
+            </button>
+            <button class="checkin-tab" onclick="showTab('list')">
+                <i class="fas fa-list"></i> View List
+            </button>
+        </div>
+
+        <!-- Code Entry Panel -->
+        <div id="codePanel" class="checkin-panel active">
+            <div class="code-input-section">
+                <h2>Enter Check-In Code</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Enter the 6-character code from the volunteer's confirmation
+                </p>
+                <input type="text" id="checkInCode" class="code-input" maxlength="6" 
+                       placeholder="ABC123" oninput="this.value = this.value.toUpperCase()">
+                <br>
+                <button class="btn btn-primary checkin-btn" onclick="checkInByCode()">
+                    <i class="fas fa-check-circle"></i> Check In
+                </button>
+            </div>
+            <div id="codeResult"></div>
+        </div>
+
+        <!-- QR Scanner Panel -->
+        <div id="scannerPanel" class="checkin-panel">
+            <div class="scanner-section">
+                <h2>Scan QR Code</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                    Point your camera at the volunteer's QR code
+                </p>
+                <div id="qr-reader"></div>
+                <button class="btn btn-outline" style="margin-top: 16px;" onclick="toggleScanner()">
+                    <i class="fas fa-camera"></i> <span id="scannerBtnText">Start Scanner</span>
+                </button>
+            </div>
+            <div id="scanResult"></div>
+        </div>
+
+        <!-- List Panel -->
+        <div id="listPanel" class="checkin-panel">
+            <div class="campaign-selector">
+                <label><strong>Select Campaign:</strong></label>
+                <select id="campaignSelect" onchange="loadRegistrations()">
+                    <option value="">-- Select Campaign --</option>
+                </select>
+            </div>
+            
+            <div id="statsSection" style="display: none;">
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <h3 id="totalCount">0</h3>
+                        <p>Total Registered</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="checkedInCount">0</h3>
+                        <p>Checked In</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="pendingCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkin-list" id="registrationList">
+                <p style="text-align: center; color: var(--text-secondary);">
+                    Select a campaign to view registrations
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let html5QrCode = null;
+        let scannerRunning = false;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCampaigns();
+            document.getElementById('checkInCode').focus();
+            
+            document.getElementById('checkInCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkInByCode();
+                }
+            });
+        });
+
+        function showTab(tab) {
+            document.querySelectorAll('.checkin-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.checkin-panel').forEach(p => p.classList.remove('active'));
+            
+            event.target.closest('.checkin-tab').classList.add('active');
+            document.getElementById(tab + 'Panel').classList.add('active');
+            
+            if (tab === 'code') {
+                document.getElementById('checkInCode').focus();
+            }
+            if (tab !== 'scanner' && scannerRunning) {
+                stopScanner();
+            }
+        }
+
+        async function checkInByCode() {
+            const code = document.getElementById('checkInCode').value.trim().toUpperCase();
+            if (!code || code.length < 6) {
+                showResult('codeResult', 'error', 'Please enter a valid 6-character code');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/checkin/code/${code}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.success) {
+                    const reg = result.data;
+                    showResult('codeResult', 'success', result.message, reg);
+                    document.getElementById('checkInCode').value = '';
+                    playSuccessSound();
+                } else {
+                    showResult('codeResult', 'error', result.message);
+                }
+            } catch (error) {
+                showResult('codeResult', 'error', 'Error processing check-in. Please try again.');
+            }
+        }
+
+        function showResult(containerId, type, message, registration = null) {
+            const container = document.getElementById(containerId);
+            let icon = type === 'success' ? 'fa-check-circle' : 
+                       type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+            
+            let html = `
+                <div class="result-card ${type}">
+                    <div class="result-icon"><i class="fas ${icon}"></i></div>
+                    <h3>${message}</h3>
+            `;
+
+            if (registration) {
+                html += `
+                    <div class="volunteer-info">
+                        <h3><i class="fas fa-user"></i> ${registration.volunteer.firstName} ${registration.volunteer.lastName}</h3>
+                        <p><strong>Email:</strong> ${registration.volunteer.email}</p>
+                        <p><strong>Job:</strong> ${registration.volunteerJob?.volunteerJobName || 'N/A'}</p>
+                        <p><strong>Shift:</strong> ${formatDate(registration.volunteerShift?.startDate)} at ${formatTime(registration.volunteerShift?.startTime)}</p>
+                        <p><strong>Code:</strong> ${registration.checkInCode}</p>
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 10000);
+        }
+
+        function toggleScanner() {
+            if (scannerRunning) {
+                stopScanner();
+            } else {
+                startScanner();
+            }
+        }
+
+        function startScanner() {
+            html5QrCode = new Html5Qrcode("qr-reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                onScanSuccess,
+                onScanFailure
+            ).then(() => {
+                scannerRunning = true;
+                document.getElementById('scannerBtnText').textContent = 'Stop Scanner';
+            }).catch(err => {
+                console.error('Scanner error:', err);
+                showResult('scanResult', 'error', 'Could not start camera. Please check permissions.');
+            });
+        }
+
+        function stopScanner() {
+            if (html5QrCode && scannerRunning) {
+                html5QrCode.stop().then(() => {
+                    scannerRunning = false;
+                    document.getElementById('scannerBtnText').textContent = 'Start Scanner';
+                });
+            }
+        }
+
+        async function onScanSuccess(decodedText) {
+            stopScanner();
+            
+            try {
+                const response = await fetch(`/api/checkin/code/${decodedText}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.success) {
+                    showResult('scanResult', 'success', result.message, result.data);
+                    playSuccessSound();
+                } else {
+                    showResult('scanResult', 'error', result.message);
+                }
+            } catch (error) {
+                showResult('scanResult', 'error', 'Error processing check-in.');
+            }
+        }
+
+        function onScanFailure(error) {
+            // Ignore scan failures (camera noise)
+        }
+
+        async function loadCampaigns() {
+            try {
+                const response = await fetch('/api/campaigns');
+                const result = await response.json();
+                
+                if (result.success) {
+                    const select = document.getElementById('campaignSelect');
+                    result.data.forEach(campaign => {
+                        const option = document.createElement('option');
+                        option.value = campaign.id;
+                        option.textContent = campaign.campaignName;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+            }
+        }
+
+        async function loadRegistrations() {
+            const campaignId = document.getElementById('campaignSelect').value;
+            if (!campaignId) {
+                document.getElementById('statsSection').style.display = 'none';
+                document.getElementById('registrationList').innerHTML = 
+                    '<p style="text-align: center; color: var(--text-secondary);">Select a campaign to view registrations</p>';
+                return;
+            }
+
+            try {
+                const [pendingRes, checkedInRes] = await Promise.all([
+                    fetch(`/api/checkin/campaign/${campaignId}/pending`),
+                    fetch(`/api/checkin/campaign/${campaignId}/checked-in`)
+                ]);
+
+                const pendingResult = await pendingRes.json();
+                const checkedInResult = await checkedInRes.json();
+
+                const pending = pendingResult.data || [];
+                const checkedIn = checkedInResult.data || [];
+                const total = pending.length + checkedIn.length;
+
+                document.getElementById('totalCount').textContent = total;
+                document.getElementById('checkedInCount').textContent = checkedIn.length;
+                document.getElementById('pendingCount').textContent = pending.length;
+                document.getElementById('statsSection').style.display = 'block';
+
+                let html = '';
+
+                if (pending.length > 0) {
+                    html += '<h3 style="margin: 16px 0 8px;"><i class="fas fa-clock"></i> Pending Check-In</h3>';
+                    pending.forEach(reg => {
+                        html += renderRegistrationItem(reg, false);
+                    });
+                }
+
+                if (checkedIn.length > 0) {
+                    html += '<h3 style="margin: 16px 0 8px;"><i class="fas fa-check-circle"></i> Checked In</h3>';
+                    checkedIn.forEach(reg => {
+                        html += renderRegistrationItem(reg, true);
+                    });
+                }
+
+                if (total === 0) {
+                    html = '<p style="text-align: center; color: var(--text-secondary);">No registrations found for this campaign</p>';
+                }
+
+                document.getElementById('registrationList').innerHTML = html;
+
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+            }
+        }
+
+        function renderRegistrationItem(reg, isCheckedIn) {
+            return `
+                <div class="checkin-item ${isCheckedIn ? 'checked-in' : ''}">
+                    <div class="checkin-item-info">
+                        <h4>${reg.volunteer.firstName} ${reg.volunteer.lastName}</h4>
+                        <p>${reg.volunteerJob?.volunteerJobName || 'N/A'} - ${formatDate(reg.volunteerShift?.startDate)} ${formatTime(reg.volunteerShift?.startTime)}</p>
+                        <p>Code: <strong>${reg.checkInCode}</strong></p>
+                    </div>
+                    <div>
+                        ${isCheckedIn ? 
+                            `<span class="status-badge checked-in"><i class="fas fa-check"></i> Checked In</span>` :
+                            `<button class="btn btn-primary quick-checkin-btn" onclick="quickCheckIn('${reg.checkInCode}')">
+                                <i class="fas fa-check"></i> Check In
+                            </button>`
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        async function quickCheckIn(code) {
+            try {
+                const response = await fetch(`/api/checkin/code/${code}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('Check-in successful!', 'success');
+                    playSuccessSound();
+                    loadRegistrations();
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Error processing check-in', 'error');
+            }
+        }
+
+        function playSuccessSound() {
+            const audio = new Audio('data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU' + 
+                'tvT19' + 'AAAAAAAA');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+</html>

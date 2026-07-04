@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data - VolunteerHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert i {
+            font-size: 1.3em;
+        }
+
+        .file-group {
+            margin-bottom: 30px;
+        }
+
+        .file-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 1.05em;
+        }
+
+        .file-group p {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+            margin-top: -5px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+
+        .file-accepted {
+            border-color: #28a745;
+            background: #f0f8f5;
+        }
+
+        .template-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .template-link:hover {
+            text-decoration: underline;
+        }
+
+        .template-link i {
+            margin-right: 5px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #333;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-import {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-import:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.95em;
+            color: #0c5aa0;
+        }
+
+        .info-box i {
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .csv-format {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0;
+            margin: 30px 0 20px 0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .import-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f0f2ff;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .back-link i {
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .import-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+        <div class="header">
+            <h1><i class="fas fa-upload"></i> Import Data</h1>
+            <p>Load your campaigns, volunteer opportunities, shifts, and volunteers</p>
+        </div>
+
+        <div class="card">
+            <!-- Success Message -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <div>
+                    <strong>Success!</strong> [[${success}]]
+                    <div th:if="${campaignsImported > 0 or jobsImported > 0 or shiftsImported > 0 or volunteersImported > 0}" class="import-stats">
+                        <div class="stat-box" th:if="${campaignsImported > 0}">
+                            <div class="stat-number" th:text="${campaignsImported}"></div>
+                            <div class="stat-label">Campaigns</div>
+                        </div>
+                        <div class="stat-box" th:if="${jobsImported > 0}">
+                            <div class="stat-number" th:text="${jobsImported}"></div>
+                            <div class="stat-label">Jobs</div>
+                        </div>
+                        <div class="stat-box" th:if="${shiftsImported > 0}">
+                            <div class="stat-number" th:text="${shiftsImported}"></div>
+                            <div class="stat-label">Shifts</div>
+                        </div>
+                        <div class="stat-box" th:if="${volunteersImported > 0}">
+                            <div class="stat-number" th:text="${volunteersImported}"></div>
+                            <div class="stat-label">Volunteers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <strong>Error:</strong> [[${error}]]
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button type="button" class="tab-button active" onclick="switchTab('excel')">
+                    <i class="fas fa-file-excel"></i> Excel Import (Recommended)
+                </button>
+                <button type="button" class="tab-button" onclick="switchTab('csv')">
+                    <i class="fas fa-file-csv"></i> CSV Import
+                </button>
+            </div>
+
+            <!-- Excel Import Tab -->
+            <div id="excel" class="tab-content active">
+                <form method="post" action="/import/excel" enctype="multipart/form-data">
+                    <div class="section-title"><i class="fas fa-file-excel"></i> Campaign Excel File</div>
+                    <div class="file-group">
+                        <label for="excel_file">
+                            <i class="fas fa-file-excel"></i> Upload Campaign Excel File
+                        </label>
+                        <p>Import your campaign with all jobs, shifts, and volunteer registrations from a single Excel file.</p>
+                        <input type="file" id="excel_file" name="excel_file" accept=".xlsx,.xls" required onchange="this.parentElement.classList.toggle('file-accepted', this.files.length > 0)">
+                    </div>
+
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Excel File Format:</strong>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li><strong>Campaign Name:</strong> Should be found in the file metadata</li>
+                            <li><strong>Jobs/Services:</strong> Job name with location (e.g., "Kitchen Assistant @ Location")</li>
+                            <li><strong>Shifts/Slots:</strong> Start date & time, duration, and volunteer slots</li>
+                            <li><strong>Volunteers:</strong> Full name, email, phone, and other contact info</li>
+                            <li><strong>Registrations:</strong> Automatically created for each volunteer-shift combination</li>
+                        </ul>
+                    </div>
+
+                    <div class="import-stats" style="margin-top: 20px;">
+                        <div class="stat-box">
+                            <i class="fas fa-check" style="font-size: 2em; color: #28a745;"></i>
+                            <div class="stat-label" style="margin-top: 10px;">Single File</div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-bolt" style="font-size: 2em; color: #ffc107;"></i>
+                            <div class="stat-label" style="margin-top: 10px;">Fast Import</div>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-list" style="font-size: 2em; color: #667eea;"></i>
+                            <div class="stat-label" style="margin-top: 10px;">Complete Data</div>
+                        </div>
+                    </div>
+
+                    <div class="buttons">
+                        <button type="submit" class="btn-import">
+                            <i class="fas fa-upload"></i> Import Excel
+                        </button>
+                        <a href="/" class="btn-cancel" style="text-align: center; line-height: 1.4; text-decoration: none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- CSV Import Tab -->
+            <div id="csv" class="tab-content">
+                <form method="post" action="/import/csv" enctype="multipart/form-data">
+                    <div class="section-title"><i class="fas fa-calendar"></i> Campaigns</div>
+                <div class="file-group">
+                    <label for="campaigns_file">
+                        <i class="fas fa-file-csv"></i> Upload Campaigns CSV
+                    </label>
+                    <p>Import your volunteer campaigns. First row should be headers.</p>
+                    <input type="file" id="campaigns_file" name="campaigns_file" accept=".csv" onchange="this.parentElement.classList.toggle('file-accepted', this.files.length > 0)">
+                    <a href="#" class="template-link" onclick="downloadTemplate('campaigns')">
+                        <i class="fas fa-download"></i> Download Template
+                    </a>
+                </div>
+
+                <div class="info-box" style="display: none;" id="campaigns-template">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>CSV Format:</strong> campaign_name, campaign_owner, description, type, status, start_date, end_date, active, time_zone
+                </div>
+
+                <div class="section-title"><i class="fas fa-briefcase"></i> Volunteer Jobs/Services</div>
+                <div class="file-group">
+                    <label for="jobs_file">
+                        <i class="fas fa-file-csv"></i> Upload Jobs CSV
+                    </label>
+                    <p>Import volunteer job opportunities. Must reference existing campaigns.</p>
+                    <input type="file" id="jobs_file" name="jobs_file" accept=".csv" onchange="this.parentElement.classList.toggle('file-accepted', this.files.length > 0)">
+                    <a href="#" class="template-link" onclick="downloadTemplate('jobs')">
+                        <i class="fas fa-download"></i> Download Template
+                    </a>
+                </div>
+
+                <div class="info-box" style="display: none;" id="jobs-template">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>CSV Format:</strong> campaign_name, job_name, description, skills_needed, location_street, location_city, location_state, location_zip, location_info, ongoing, time_zone
+                </div>
+
+                <div class="section-title"><i class="fas fa-clock"></i> Volunteer Shifts/Slots</div>
+                <div class="file-group">
+                    <label for="shifts_file">
+                        <i class="fas fa-file-csv"></i> Upload Shifts CSV
+                    </label>
+                    <p>Import shift/slot information. Must reference existing jobs and campaigns.</p>
+                    <input type="file" id="shifts_file" name="shifts_file" accept=".csv" onchange="this.parentElement.classList.toggle('file-accepted', this.files.length > 0)">
+                    <a href="#" class="template-link" onclick="downloadTemplate('shifts')">
+                        <i class="fas fa-download"></i> Download Template
+                    </a>
+                </div>
+
+                <div class="info-box" style="display: none;" id="shifts-template">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>CSV Format:</strong> campaign_name, job_name, shift_id, start_date, start_time, duration_hours, desired_num_volunteers, current_num_volunteers, description
+                </div>
+
+                <div class="section-title"><i class="fas fa-users"></i> Registered Volunteers</div>
+                <div class="file-group">
+                    <label for="volunteers_file">
+                        <i class="fas fa-file-csv"></i> Upload Volunteers CSV
+                    </label>
+                    <p>Import volunteer registrations. Duplicates (by email) will be skipped.</p>
+                    <input type="file" id="volunteers_file" name="volunteers_file" accept=".csv" onchange="this.parentElement.classList.toggle('file-accepted', this.files.length > 0)">
+                    <a href="#" class="template-link" onclick="downloadTemplate('volunteers')">
+                        <i class="fas fa-download"></i> Download Template
+                    </a>
+                </div>
+
+                <div class="info-box" style="display: none;" id="volunteers-template">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>CSV Format:</strong> first_name, last_name, email, phone, address, city, state, zip_code, experience, skills, availability, notes
+                </div>
+
+                <div class="info-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <strong>Tips:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>You can import all files at once or selectively choose which ones to import</li>
+                        <li>Import campaigns first, then jobs, then shifts, then volunteers</li>
+                        <li>Make sure date formats are YYYY-MM-DD and times are HH:mm (24-hour)</li>
+                        <li>CSV must be properly formatted with headers in the first row</li>
+                    </ul>
+                </div>
+
+                    <div class="buttons">
+                        <button type="submit" class="btn-import">
+                            <i class="fas fa-upload"></i> Import CSV
+                        </button>
+                        <a href="/" class="btn-cancel" style="text-align: center; line-height: 1.4; text-decoration: none;">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.tab-button').classList.add('active');
+        }
+
+        function downloadTemplate(type) {
+            event.preventDefault();
+
+            const templates = {
+                campaigns: 'campaign_name,campaign_owner,description,type,status,start_date,end_date,active,time_zone\n' +
+                           'Spring Cleanup 2026,VCC Team,Spring community cleanup,Community Event,Planned,2026-03-01,2026-05-31,true,America/Los_Angeles\n' +
+                           'Summer Youth Program,VCC Team,Youth mentoring program,Education,Planned,2026-06-01,2026-08-31,true,America/Los_Angeles',
+
+                jobs: 'campaign_name,job_name,description,skills_needed,location_street,location_city,location_state,location_zip,location_info,ongoing,time_zone\n' +
+                      'Spring Cleanup 2026,Park Cleanup,Clean local parks,Physical fitness,123 Park Ave,Springfield,CA,90210,Central Park,false,America/Los_Angeles\n' +
+                      'Summer Youth Program,Youth Tutoring,Provide academic help,Teaching skills,100 Library St,Springfield,CA,90210,Public Library,false,America/Los_Angeles',
+
+                shifts: 'campaign_name,job_name,shift_id,start_date,start_time,duration_hours,desired_num_volunteers,current_num_volunteers,description\n' +
+                        'Spring Cleanup 2026,Park Cleanup,SHIFT-001,2026-03-15,09:00,4.0,20,0,Park Cleanup Morning Shift\n' +
+                        'Summer Youth Program,Youth Tutoring,SHIFT-002,2026-06-15,10:00,2.0,8,0,Youth Tutoring Session',
+
+                volunteers: 'first_name,last_name,email,phone,address,city,state,zip_code,experience,skills,availability,notes\n' +
+                           'John,Doe,john@example.com,555-0001,123 Main St,Springfield,CA,90210,5 years,Teaching,Weekends,Experienced mentor\n' +
+                           'Jane,Smith,jane@example.com,555-0002,456 Oak Ave,Springfield,CA,90210,3 years,Environmental,Weekdays,Environmental specialist'
+            };
+
+            const csv = templates[type];
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${type}_template.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>

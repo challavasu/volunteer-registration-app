@@ -1,0 +1,3637 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - VolunteerHub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+    <!-- Quill.js Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal.large {
+            max-width: 1000px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #e91e63, #9c27b0);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h2 {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .modal-footer {
+            padding: 12px 16px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #333;
+        }
+
+        .form-group label .required {
+            color: #e91e63;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+        }
+
+        .form-control.textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #e91e63;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin: 8px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            color: #666;
+            text-transform: uppercase;
+            margin: 20px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #fce4ec;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item a {
+            color: #e91e63;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .breadcrumb-item a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-item.active {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .breadcrumb-separator {
+            color: #ccc;
+        }
+
+        /* Context Header */
+        .context-header {
+            background: linear-gradient(135deg, #e91e63, #9c27b0);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .context-header h3 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .context-header .context-meta {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        /* Table styles */
+        .drill-link {
+            color: #e91e63;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .drill-link:hover {
+            text-decoration: underline;
+        }
+
+        .count-badge {
+            background: #e91e63;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 6px;
+        }
+
+        .action-buttons .btn {
+            padding: 6px 10px;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: #f9f9f9;
+        }
+
+        .pagination-info {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            border-color: #e91e63;
+            color: #e91e63;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #e91e63;
+            color: white;
+            border-color: #e91e63;
+        }
+
+        .page-size-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-bar label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .filter-bar input {
+            width: 200px;
+        }
+
+        .filter-bar .btn-clear {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        /* Export Button */
+        .export-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .export-btn:hover {
+            background: #43a047;
+        }
+
+        /* Export Modal Table */
+        .export-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .export-table th,
+        .export-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+        }
+
+        .export-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .export-table th:hover {
+            background: #eee;
+        }
+
+        .export-table th i {
+            margin-left: 6px;
+            color: #999;
+        }
+
+        .export-table tr:hover {
+            background: #fce4ec;
+        }
+
+        .sort-icon {
+            font-size: 0.8rem;
+        }
+
+        /* Volunteer Detail Styles */
+        .volunteer-detail-section {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .volunteer-detail-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .volunteer-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 12px;
+        }
+
+        .volunteer-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .volunteer-info-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .volunteer-info-value {
+            font-size: 0.95rem;
+            color: #333;
+            word-break: break-word;
+        }
+
+        .registrations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        .registrations-table th,
+        .registrations-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+        }
+
+        .registrations-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .registrations-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-confirmed {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .status-completed {
+            background: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .status-cancelled {
+            background: #ffcdd2;
+            color: #c62828;
+        }
+
+        .status-no_show {
+            background: #cfd8dc;
+            color: #37474f;
+        }
+
+        .no-registrations-message {
+            text-align: center;
+            padding: 24px;
+            color: #999;
+            font-style: italic;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body th:data-user-role="${currentUserRole}">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <span>VolunteerHub</span>
+                <span class="status-badge status-confirmed" style="margin-left: 8px;">Admin</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/import"><i class="fas fa-upload"></i> Import Data</a></li>
+                <li><a href="/">View Site</a></li>
+                <li style="display: flex; align-items: center; gap: 12px; margin-left: 20px; padding-left: 20px; border-left: 1px solid rgba(255,255,255,0.2);">
+                    <span style="color: white; font-size: 0.9rem;"><i class="fas fa-user-circle"></i> <span id="navUsername" th:text="${username}">User</span></span>
+                    <span id="navRole" style="background: rgba(255,255,255,0.2); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;" th:text="${currentUserRole}">ROLE</span>
+                    <a href="/logout" style="color: white; text-decoration: none; display: flex; align-items: center; gap: 4px; padding: 6px 12px; background: rgba(255,255,255,0.1); border-radius: 4px; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard -->
+    <section class="admin-section">
+        <div class="container">
+            <!-- Stats Overview -->
+            <style>
+                .stat-clickable {
+                    cursor: pointer !important;
+                    transition: all 0.2s ease !important;
+                    position: relative;
+                    z-index: 1;
+                }
+
+                .stat-clickable:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+                }
+
+                .stat-clickable * {
+                    pointer-events: none;
+                }
+            </style>
+            <div class="admin-stats">
+                <div class="admin-stat-card stat-clickable" onclick="navigateToTab('volunteers')">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #e91e63, #9c27b0);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalVolunteers">0</h3>
+                        <p>Volunteers</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card stat-clickable" onclick="navigateToTab('campaigns')">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #2196f3, #00bcd4);">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalCampaigns">0</h3>
+                        <p>Campaigns</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card stat-clickable" onclick="navigateToTab('campaigns')">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #4caf50, #8bc34a);">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalJobs">0</h3>
+                        <p>Jobs</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card stat-clickable" onclick="navigateToTab('campaigns')">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #ff9800, #ffc107);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalShifts">0</h3>
+                        <p>Shifts</p>
+                    </div>
+                </div>
+                <div class="admin-stat-card stat-clickable" onclick="navigateToTab('registrations')">
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #9c27b0, #673ab7);">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalRegistrations">0</h3>
+                        <p>Registrations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('campaigns', event)">
+                    <i class="fas fa-flag"></i> Campaigns
+                </button>
+                <button class="tab-btn" onclick="showTab('volunteers', event)">
+                    <i class="fas fa-users"></i> Volunteers
+                </button>
+                <button class="tab-btn" onclick="showTab('registrations', event)">
+                    <i class="fas fa-clipboard-list"></i> Registrations
+                </button>
+                <button class="tab-btn" onclick="showTab('users', event)" th:style="${currentUserRole == 'ADMIN' ? '' : 'display: none;'}">
+                    <i class="fas fa-user-shield"></i> Users
+                </button>
+                <button class="tab-btn" onclick="showTab('emailTemplates', event)" th:style="${currentUserRole == 'ADMIN' ? '' : 'display: none;'}">
+                    <i class="fas fa-envelope"></i> Email Templates
+                </button>
+            </div>
+
+            <!-- Tab Content: Campaigns (with drill-down) -->
+            <div class="tab-content active" id="campaignsTab">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb" id="campaignBreadcrumb">
+                    <div class="breadcrumb-item active"><i class="fas fa-flag"></i> All Campaigns</div>
+                </div>
+
+                <!-- Context Header -->
+                <div class="context-header" id="contextHeader" style="display: none;">
+                    <div>
+                        <h3 id="contextTitle"><i class="fas fa-flag"></i> Context</h3>
+                        <div class="context-meta" id="contextMeta"></div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn btn-outline" style="border-color: white; color: white; display: none;" id="newJobBtn" onclick="openJobModal()">
+                            <i class="fas fa-plus"></i> New Job
+                        </button>
+                        <button class="btn btn-outline" style="border-color: white; color: white; display: none;" id="newShiftBtn" onclick="openShiftModal()">
+                            <i class="fas fa-plus"></i> New Shift
+                        </button>
+                        <button class="export-btn" onclick="openExportModal()" id="exportBtn" style="display: none;">
+                            <i class="fas fa-download"></i> Export Volunteers
+                        </button>
+                        <button class="btn btn-outline" style="border-color: white; color: white;" onclick="goBack()">
+                            <i class="fas fa-arrow-left"></i> Back
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Campaign List View -->
+                <div id="campaignListView">
+                    <div class="content-header">
+                        <h2>Campaigns</h2>
+                        <button class="btn btn-primary btn-small" onclick="openCampaignModal()" th:style="${currentUserRole == 'ADMIN' ? '' : 'display: none;'}">
+                            <i class="fas fa-plus"></i> New Campaign
+                        </button>
+                    </div>
+                    <!-- Filter Bar -->
+                    <div class="filter-bar"
+                        style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                        <div class="filter-group">
+                            <label><i class="fas fa-search"></i> Search:</label>
+                            <input type="text" id="campaignSearch" placeholder="Campaign name..."
+                                onkeyup="filterCampaigns()">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-flag"></i> Status:</label>
+                            <select id="campaignStatusFilter" onchange="filterCampaigns()">
+                                <option value="">All Statuses</option>
+                                <option value="Planned">Planned</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-eye"></i> Show:</label>
+                            <select id="campaignShowAll" onchange="filterCampaigns()">
+                                <option value="all" selected>Show All</option>
+                                <option value="active">Active Only</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline btn-clear" onclick="clearCampaignFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Campaign Name</th>
+                                    <th>Status</th>
+                                    <th>Date Range</th>
+                                    <th>Jobs</th>
+                                    <th>Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaignsTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="campaignPagination"></div>
+                </div>
+
+                <!-- Jobs List View -->
+                <div id="jobsListView" style="display: none;">
+                    <div class="filter-bar"
+                        style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                        <div class="filter-group">
+                            <label><i class="fas fa-search"></i> Search:</label>
+                            <input type="text" id="jobSearch" placeholder="Job name..." onkeyup="filterJobs()">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-map-marker-alt"></i> Location:</label>
+                            <input type="text" id="jobLocationFilter" placeholder="City..." onkeyup="filterJobs()">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-globe"></i> Website:</label>
+                            <select id="jobDisplayFilter" onchange="filterJobs()">
+                                <option value="all">All Jobs</option>
+                                <option value="enabled">Display on Website</option>
+                                <option value="disabled">Hidden from Website</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline btn-clear" onclick="clearJobFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th onclick="sortJobsBy('name')" style="cursor: pointer; user-select: none;">
+                                        Job Name <i class="fas fa-sort sort-icon" id="jobNameSortIcon"></i>
+                                    </th>
+                                    <th>Location</th>
+                                    <th>Skills</th>
+                                    <th>Shifts</th>
+                                    <th>Website</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobsTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="jobPagination"></div>
+                </div>
+
+                <!-- Shifts List View -->
+                <div id="shiftsListView" style="display: none;">
+                    <div class="filter-bar"
+                        style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                        <div class="filter-group">
+                            <label><i class="fas fa-calendar"></i> Date From:</label>
+                            <input type="date" id="shiftDateFrom" onchange="filterShifts()">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-calendar-alt"></i> Date To:</label>
+                            <input type="date" id="shiftDateTo" onchange="filterShifts()">
+                        </div>
+                        <div class="filter-group">
+                            <label><i class="fas fa-users"></i> Availability:</label>
+                            <select id="shiftAvailability" onchange="filterShifts()">
+                                <option value="">All</option>
+                                <option value="available">Has Openings</option>
+                                <option value="full">Full</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline btn-clear" onclick="clearShiftFilters()">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Shift ID</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Duration</th>
+                                    <th>Volunteers</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shiftsTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="shiftPagination"></div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Volunteers -->
+            <div class="tab-content" id="volunteersTab">
+                <div class="content-header">
+                    <h2>Volunteers</h2>
+                    <button class="btn btn-primary btn-small" onclick="openVolunteerModal()" th:style="${currentUserRole == 'ADMIN' ? '' : 'display: none;'}">
+                        <i class="fas fa-user-plus"></i> Add Volunteer
+                    </button>
+                </div>
+                <div class="filter-bar"
+                    style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                    <div class="filter-group">
+                        <label><i class="fas fa-search"></i> Search:</label>
+                        <input type="text" id="volunteerSearch" placeholder="Name, email, phone..."
+                            onkeyup="filterVolunteers()">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-user-check"></i> Status:</label>
+                        <select id="volunteerStatusFilter" onchange="filterVolunteers()">
+                            <option value="">All</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-clipboard-list"></i> Has Registrations:</label>
+                        <select id="volunteerRegFilter" onchange="filterVolunteers()">
+                            <option value="">All</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline btn-clear" onclick="clearVolunteerFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                <div class="table-container"
+                    style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Registrations</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="volunteersTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="volunteerPagination"></div>
+            </div>
+
+
+            <!-- Tab Content: Registrations -->
+            <div class="tab-content" id="registrationsTab">
+                <div class="content-header">
+                    <h2>Registrations</h2>
+                </div>
+                <div class="filter-bar"
+                    style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                    <div class="filter-group">
+                        <label><i class="fas fa-search"></i> Search:</label>
+                        <input type="text" id="registrationSearch" placeholder="Volunteer name..."
+                            onkeyup="filterRegistrations()">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-flag"></i> Campaign:</label>
+                        <select id="registrationCampaignFilter" onchange="filterRegistrations()">
+                            <option value="">All Campaigns</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-info-circle"></i> Status:</label>
+                        <select id="registrationStatusFilter" onchange="filterRegistrations()">
+                            <option value="">All</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CONFIRMED">Confirmed</option>
+                            <option value="COMPLETED">Completed</option>
+                            <option value="CANCELLED">Cancelled</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline btn-clear" onclick="clearRegistrationFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                <div class="table-container"
+                    style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Volunteer</th>
+                                <th>Campaign / Job / Shift</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrationsTable"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="registrationPagination"></div>
+            </div>
+
+            <!-- Tab Content: Email Templates -->
+            <div class="tab-content" id="emailTemplatesTab">
+                <div class="content-header">
+                    <h2><i class="fas fa-envelope"></i> Email Templates</h2>
+                </div>
+                <div class="info-banner" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #2196f3; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: start; gap: 12px;">
+                        <i class="fas fa-info-circle" style="color: #1976d2; font-size: 1.25rem; margin-top: 2px;"></i>
+                        <div>
+                            <strong style="color: #1565c0;">Email Configuration</strong>
+                            <p style="margin: 4px 0 0; color: #1976d2; font-size: 0.9rem;">
+                                Configure SMTP settings in application.properties and set <code>app.email.enabled=true</code> to enable email sending.
+                                Use the test button to verify your configuration.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="email-templates-list" id="emailTemplatesList">
+                    <!-- Templates will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Tab Content: Users -->
+            <div class="tab-content" id="usersTab">
+                <div class="content-header">
+                    <h2><i class="fas fa-user-shield"></i> Users</h2>
+                    <button class="btn btn-primary btn-small" onclick="openUserModal()">
+                        <i class="fas fa-user-plus"></i> Create User
+                    </button>
+                </div>
+                <div class="filter-bar"
+                    style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 16px;">
+                    <div class="filter-group">
+                        <label><i class="fas fa-search"></i> Search:</label>
+                        <input type="text" id="userSearch" placeholder="Username..." onkeyup="filterUsers()">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-shield-alt"></i> Role:</label>
+                        <select id="userRoleFilter" onchange="filterUsers()">
+                            <option value="">All Roles</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="LEAD">LEAD</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-user-check"></i> Status:</label>
+                        <select id="userStatusFilter" onchange="filterUsers()">
+                            <option value="">All</option>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline btn-clear" onclick="clearUserFilters()">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                <div class="table-container"
+                    style="background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="pagination-container" id="userPagination"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Email Template Modal -->
+    <div class="modal-overlay" id="emailTemplateModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-envelope"></i> <span id="emailTemplateModalTitle">Edit Email Template</span></h2>
+                <button class="modal-close" onclick="closeModal('emailTemplateModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="emailTemplateId">
+                <div class="form-group">
+                    <label>Template Type</label>
+                    <input type="text" class="form-control" id="emailTemplateType" readonly style="background: #f5f5f5;">
+                </div>
+                <div class="form-group">
+                    <label>Subject Line <span class="required">*</span></label>
+                    <input type="text" class="form-control" id="emailTemplateSubject" placeholder="e.g., Welcome {{volunteerFirstName}}!">
+                </div>
+                <div class="form-group">
+                    <label>Insert Variable</label>
+                    <select class="form-control" id="variableSelect" onchange="insertVariable()">
+                        <option value="">-- Select a variable to insert --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Email Body (HTML)</label>
+                    <div id="emailEditor" style="height: 350px; border: 1px solid #ddd; border-radius: 4px;"></div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="emailTemplateEnabled" checked>
+                        <label for="emailTemplateEnabled" style="margin-bottom: 0;">Enable this template</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="previewEmailTemplate()">
+                    <i class="fas fa-eye"></i> Preview
+                </button>
+                <button type="button" class="btn btn-outline" onclick="openTestEmailModal()">
+                    <i class="fas fa-paper-plane"></i> Send Test
+                </button>
+                <button type="button" class="btn btn-outline" onclick="closeModal('emailTemplateModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveEmailTemplate()">
+                    <i class="fas fa-save"></i> Save Template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Email Modal -->
+    <div class="modal-overlay" id="testEmailModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-paper-plane"></i> Send Test Email</h2>
+                <button class="modal-close" onclick="closeModal('testEmailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Send test email to:</label>
+                    <input type="email" class="form-control" id="testEmailAddress" placeholder="your.email@example.com">
+                </div>
+                <p style="color: #666; font-size: 0.85rem; margin-top: 8px;">
+                    <i class="fas fa-info-circle"></i> A test email with sample data will be sent to this address.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('testEmailModal')">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="sendTestEmail()">
+                    <i class="fas fa-paper-plane"></i> Send Test
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Preview Modal -->
+    <div class="modal-overlay" id="emailPreviewModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> Email Preview</h2>
+                <button class="modal-close" onclick="closeModal('emailPreviewModal')">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div style="background: #f5f5f5; padding: 16px; border-bottom: 1px solid #ddd;">
+                    <strong>Subject:</strong> <span id="previewSubject"></span>
+                </div>
+                <div id="emailPreviewContent" style="padding: 20px; min-height: 300px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('emailPreviewModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Modal -->
+    <div class="modal-overlay" id="campaignModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-flag"></i> <span id="campaignModalTitle">New Campaign</span></h2>
+                <button class="modal-close" onclick="closeModal('campaignModal')">&times;</button>
+            </div>
+            <form id="campaignForm" onsubmit="saveCampaign(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="campaignId">
+                    <div class="section-title">Basic Information</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Campaign Name <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="campaignName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Campaign Owner</label>
+                            <input type="text" class="form-control" id="campaignOwner">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Type</label>
+                            <select class="form-control" id="campaignType">
+                                <option value="">Select Type</option>
+                                <option value="Conference">Conference</option>
+                                <option value="Festival">Festival</option>
+                                <option value="Community Service">Community Service</option>
+                                <option value="Fundraiser">Fundraiser</option>
+                                <option value="Workshop">Workshop</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control" id="campaignStatus">
+                                <option value="Planned">Planned</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" class="form-control" id="campaignStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" class="form-control" id="campaignEndDate">
+                        </div>
+                    </div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control textarea" id="campaignDescription"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Time Zone</label>
+                            <select class="form-control" id="campaignTimeZone">
+                                <option value="America/Los_Angeles">Pacific</option>
+                                <option value="America/Denver">Mountain</option>
+                                <option value="America/Chicago">Central</option>
+                                <option value="America/New_York">Eastern</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="campaignActive" checked>
+                                <label for="campaignActive" style="margin-bottom: 0;">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('campaignModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Modal -->
+    <div class="modal-overlay" id="jobModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-briefcase"></i> <span id="jobModalTitle">New Volunteer Job</span></h2>
+                <button class="modal-close" onclick="closeModal('jobModal')">&times;</button>
+            </div>
+            <form id="jobForm" onsubmit="saveJob(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="jobId">
+                    <input type="hidden" id="jobCampaignId">
+                    <div class="section-title">Basic Information</div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Job Name <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="jobName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Skills Needed</label>
+                            <input type="text" class="form-control" id="jobSkills">
+                        </div>
+                        <div class="form-group">
+                            <label>Team Lead</label>
+                            <input type="text" class="form-control" id="jobTeamLead">
+                        </div>
+                    </div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control textarea" id="jobDescription"></textarea>
+                        </div>
+                    </div>
+                    <div class="section-title">Location</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Street</label>
+                            <input type="text" class="form-control" id="jobStreet">
+                        </div>
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" id="jobCity">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-control" id="jobState">
+                        </div>
+                        <div class="form-group">
+                            <label>Zip</label>
+                            <input type="text" class="form-control" id="jobZip">
+                        </div>
+                    </div>
+                    <div class="section-title">Settings</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="jobDisplayOnWebsite" checked>
+                                <label for="jobDisplayOnWebsite" style="margin-bottom: 0;">Display on Website</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="jobInactive">
+                                <label for="jobInactive" style="margin-bottom: 0;">Inactive</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('jobModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Shift Modal -->
+    <div class="modal-overlay" id="shiftModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-clock"></i> <span id="shiftModalTitle">New Volunteer Shift</span></h2>
+                <button class="modal-close" onclick="closeModal('shiftModal')">&times;</button>
+            </div>
+            <form id="shiftForm" onsubmit="saveShift(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="shiftId">
+                    <input type="hidden" id="shiftJobId">
+                    <div class="section-title">Shift Details</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date <span class="required">*</span></label>
+                            <input type="date" class="form-control" id="shiftStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Time <span class="required">*</span></label>
+                            <input type="time" class="form-control" id="shiftStartTime" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Duration (Hours) <span class="required">*</span></label>
+                            <input type="number" class="form-control" id="shiftDuration" required min="0.5" step="0.5"
+                                value="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Desired # Volunteers</label>
+                            <input type="number" class="form-control" id="shiftDesiredVolunteers" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control textarea" id="shiftDescription"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('shiftModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Volunteer Modal -->
+    <div class="modal-overlay" id="volunteerModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> <span id="volunteerModalTitle">Add Volunteer</span></h2>
+                <button class="modal-close" onclick="closeModal('volunteerModal')">&times;</button>
+            </div>
+            <form id="volunteerForm" onsubmit="saveVolunteer(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="volunteerId">
+                    <div class="section-title">Personal Information</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>First Name <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="volunteerFirstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Last Name <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="volunteerLastName" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email <span class="required">*</span></label>
+                            <input type="email" class="form-control" id="volunteerEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone <span class="required">*</span></label>
+                            <input type="tel" class="form-control" id="volunteerPhone" required>
+                        </div>
+                    </div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Organization / Skills</label>
+                            <input type="text" class="form-control" id="volunteerSkills">
+                        </div>
+                    </div>
+                    <div class="section-title">Address (Optional)</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" id="volunteerCity">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" class="form-control" id="volunteerState">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('volunteerModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-download"></i> Campaign Volunteers - <span id="exportCampaignName"></span></h2>
+                <button class="modal-close" onclick="closeModal('exportModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <label style="font-weight: 600;">Sort by:</label>
+                        <select id="exportSortBy" class="form-control" style="width: auto;" onchange="sortExportData()">
+                            <option value="name">Volunteer Name</option>
+                            <option value="job">Job Name</option>
+                            <option value="shift">Shift Date/Time</option>
+                            <option value="status">Status</option>
+                        </select>
+                        <select id="exportSortOrder" class="form-control" style="width: auto;"
+                            onchange="sortExportData()">
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-outline" onclick="exportToCSV()">
+                            <i class="fas fa-file-csv"></i> Export CSV
+                        </button>
+                        <button class="btn btn-primary" onclick="printExport()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="export-table" id="exportTable">
+                        <thead>
+                            <tr>
+                                <th onclick="sortExportByColumn('name')">Volunteer <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th onclick="sortExportByColumn('email')">Email <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th onclick="sortExportByColumn('phone')">Phone <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th onclick="sortExportByColumn('job')">Job <i class="fas fa-sort sort-icon"></i></th>
+                                <th onclick="sortExportByColumn('shift')">Shift <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                                <th onclick="sortExportByColumn('status')">Status <i class="fas fa-sort sort-icon"></i>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="exportTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                    <strong>Total: <span id="exportTotalCount">0</span> registrations</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Shift Registrations Modal -->
+    <div class="modal-overlay" id="shiftRegistrationsModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-users"></i> Shift Registrations - <span id="viewShiftInfo"></span></h2>
+                <button class="modal-close" onclick="closeModal('shiftRegistrationsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Volunteer Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Status</th>
+                                <th>Checked In</th>
+                                <th>Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="shiftRegistrationsTableBody"></tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+                    <strong>Total: <span id="shiftRegistrationsTotalCount">0</span> registrations</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clone Campaign Modal -->
+    <div class="modal-overlay" id="cloneCampaignModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-copy"></i> Clone Campaign</h2>
+                <button class="modal-close" onclick="closeModal('cloneCampaignModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="cloneCampaignForm" onsubmit="submitCloneCampaign(event)">
+                    <input type="hidden" id="cloneSourceCampaignId">
+                    
+                    <div class="form-group">
+                        <label>Original Campaign</label>
+                        <input type="text" id="cloneSourceName" class="form-control" readonly style="background: #f5f5f5;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>New Campaign Name <span class="required">*</span></label>
+                        <input type="text" id="cloneNewName" class="form-control" required placeholder="Enter new campaign name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>New Start Date <span class="required">*</span></label>
+                        <input type="date" id="cloneNewStartDate" class="form-control" required>
+                        <small style="color: #666; margin-top: 4px; display: block;">All shift dates will be adjusted based on the difference from the original start date.</small>
+                    </div>
+                    
+                    <div class="info-box" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px; margin: 16px 0; border-radius: 4px;">
+                        <i class="fas fa-info-circle" style="color: #2196f3;"></i>
+                        <span style="margin-left: 8px;">This will copy all jobs and shifts. Registrations will NOT be copied.</span>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('cloneCampaignModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-copy"></i> Clone Campaign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clone Job Modal -->
+    <div class="modal-overlay" id="cloneJobModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-copy"></i> Clone Job</h2>
+                <button class="modal-close" onclick="closeModal('cloneJobModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="cloneJobForm" onsubmit="submitCloneJob(event)">
+                    <input type="hidden" id="cloneSourceJobId">
+
+                    <div class="form-group">
+                        <label>Original Job</label>
+                        <input type="text" id="cloneSourceJobName" class="form-control" readonly style="background: #f5f5f5;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Job Name <span class="required">*</span></label>
+                        <input type="text" id="cloneNewJobName" class="form-control" required placeholder="Enter new job name">
+                    </div>
+
+                    <div class="info-box" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px; margin: 16px 0; border-radius: 4px;">
+                        <i class="fas fa-info-circle" style="color: #2196f3;"></i>
+                        <span style="margin-left: 8px;">This will copy the job and all its shifts. Registrations will NOT be copied.</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="closeModal('cloneJobModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-copy"></i> Clone Job</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Volunteer Detail Modal -->
+    <div class="modal-overlay" id="volunteerDetailModal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-user"></i> <span id="volunteerDetailName">Volunteer Details</span></h2>
+                <button class="modal-close" onclick="closeModal('volunteerDetailModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Volunteer Information Section -->
+                <div class="volunteer-detail-section">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.1rem;">Volunteer Information</h3>
+                    <div class="volunteer-info-grid">
+                        <div class="volunteer-info-item">
+                            <div class="volunteer-info-label">Name</div>
+                            <div class="volunteer-info-value" id="volunteerDetailFullName">-</div>
+                        </div>
+                        <div class="volunteer-info-item">
+                            <div class="volunteer-info-label">Email</div>
+                            <div class="volunteer-info-value">
+                                <a id="volunteerDetailEmail" href="mailto:" style="color: #e91e63; text-decoration: none;">-</a>
+                            </div>
+                        </div>
+                        <div class="volunteer-info-item">
+                            <div class="volunteer-info-label">Phone</div>
+                            <div class="volunteer-info-value" id="volunteerDetailPhone">-</div>
+                        </div>
+                        <div class="volunteer-info-item">
+                            <div class="volunteer-info-label">Organization / Skills</div>
+                            <div class="volunteer-info-value" id="volunteerDetailSkills">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaign Registrations Section -->
+                <div class="volunteer-detail-section">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 1.1rem;">Campaign Registrations</h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table class="registrations-table" id="volunteerRegistrationsTable">
+                            <thead>
+                                <tr>
+                                    <th>Campaign</th>
+                                    <th>Job Name</th>
+                                    <th>Shift Details</th>
+                                    <th>Status</th>
+                                    <th>Check-in Code</th>
+                                </tr>
+                            </thead>
+                            <tbody id="volunteerRegistrationsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="noRegistrationsMessage" class="no-registrations-message" style="display: none;">
+                        No campaign registrations found
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('volunteerDetailModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-shield"></i> <span id="userModalTitle">Create User</span></h2>
+                <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <form id="userForm" onsubmit="saveUser(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="userId">
+                    <div class="section-title">User Information</div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label>Username <span class="required">*</span></label>
+                            <input type="text" class="form-control" id="userUsername" required>
+                            <small id="usernameError" style="color: #c62828; display: none;"></small>
+                        </div>
+                    </div>
+                    <div class="form-row single">
+                        <div class="form-group">
+                            <label id="passwordLabel">Password <span class="required">*</span></label>
+                            <input type="password" class="form-control" id="userPassword" required>
+                            <small style="color: #666; margin-top: 4px; display: block;">Minimum 8 characters</small>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Role <span class="required">*</span></label>
+                            <select class="form-control" id="userRole" required>
+                                <option value="">Select Role</option>
+                                <option value="ADMIN">ADMIN - Full access</option>
+                                <option value="LEAD">LEAD - Read-only access</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="userActive" checked>
+                                <label for="userActive" style="margin-bottom: 0;">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('userModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete User Confirmation Modal -->
+    <div class="modal-overlay" id="deleteUserModal">
+        <div class="modal" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-trash-alt"></i> Delete User</h2>
+                <button class="modal-close" onclick="closeModal('deleteUserModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 1rem; color: #333; margin-bottom: 16px;">
+                    Are you sure you want to delete user <strong id="deleteUserUsername"></strong>?
+                </p>
+                <p style="color: #f57f17; background: #fff3e0; padding: 12px; border-radius: 4px; border-left: 4px solid #ff9800; margin: 0;">
+                    <i class="fas fa-exclamation-triangle"></i> This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('deleteUserModal')">Cancel</button>
+                <button type="button" class="btn btn-danger" onclick="confirmDeleteUser()">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 VolunteerHub Admin. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Data stores
+        let campaignsData = [], jobsData = [], shiftsData = [], volunteersData = [], registrationsData = [];
+        let filteredCampaigns = [], filteredJobs = [], filteredShifts = [], filteredVolunteers = [], filteredRegistrations = [];
+        let exportData = [];
+
+        // Pagination state
+        const pageSize = { campaigns: 10, jobs: 10, shifts: 10, volunteers: 10, registrations: 10 };
+        const currentPage = { campaigns: 1, jobs: 1, shifts: 1, volunteers: 1, registrations: 1 };
+
+        // Navigation state
+        let currentCampaign = null, currentJob = null, currentView = 'campaigns';
+        let jobCounts = {}, shiftCounts = {};
+
+        // Get current user role from Thymeleaf model
+        const currentUserRole = document.body.getAttribute('data-user-role') || 'LEAD';
+        const isAdmin = currentUserRole === 'ADMIN';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeRoleBasedUI();
+            loadStats();
+            loadCampaigns();
+            loadAllVolunteers();
+            loadRegistrations();
+            if (isAdmin) {
+                loadUsers();
+            }
+        });
+
+        function initializeRoleBasedUI() {
+            if (!isAdmin) {
+                // Hide create buttons for LEAD role
+                document.querySelectorAll('[onclick*="openCampaignModal"], [onclick*="openVolunteerModal"], [onclick*="openJobModal"], [onclick*="openShiftModal"], [onclick*="openUserModal"]').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+
+                // Hide email templates and users tabs for LEAD role
+                const tabsToHide = Array.from(document.querySelectorAll('.tab-btn')).filter(btn =>
+                    btn.textContent.includes('Email') || btn.textContent.includes('Users')
+                );
+                tabsToHide.forEach(btn => btn.style.display = 'none');
+
+                // Add read-only badge to indicators
+                const contentHeaders = document.querySelectorAll('.content-header h2');
+                contentHeaders.forEach(header => {
+                    if (!header.textContent.includes('Read-only')) {
+                        const badge = document.createElement('span');
+                        badge.style.cssText = 'margin-left: 12px; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;';
+                        badge.textContent = 'READ-ONLY';
+                        header.appendChild(badge);
+                    }
+                });
+            }
+        }
+
+        function canEditOrDelete() {
+            if (!isAdmin) {
+                alert('You do not have permission to perform this action. Only ADMIN role can create, edit, or delete.');
+                return false;
+            }
+            return true;
+        }
+
+        // Override modal-opening functions for LEAD users
+        const originalOpenCampaignModal = window.openCampaignModal;
+        window.openCampaignModal = function() {
+            if (!canEditOrDelete()) return;
+            originalOpenCampaignModal.call(this);
+        };
+
+        const originalOpenJobModal = window.openJobModal;
+        window.openJobModal = function() {
+            if (!canEditOrDelete()) return;
+            originalOpenJobModal.call(this);
+        };
+
+        const originalOpenShiftModal = window.openShiftModal;
+        window.openShiftModal = function() {
+            if (!canEditOrDelete()) return;
+            originalOpenShiftModal.call(this);
+        };
+
+        const originalOpenVolunteerModal = window.openVolunteerModal;
+        window.openVolunteerModal = function() {
+            if (!canEditOrDelete()) return;
+            originalOpenVolunteerModal.call(this);
+        };
+
+        const originalOpenEmailTemplateModal = window.openEmailTemplateModal;
+        if (originalOpenEmailTemplateModal) {
+            window.openEmailTemplateModal = function() {
+                if (!canEditOrDelete()) return;
+                originalOpenEmailTemplateModal.call(this);
+            };
+        }
+
+        function showTab(tabName, event) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            if (event && event.target) {
+                event.target.closest('.tab-btn')?.classList.add('active');
+            }
+
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            if (tabName === 'campaigns') resetToAllCampaigns();
+        }
+
+        function navigateToTab(tabName) {
+            // Remove active from all tabs and content
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Find and activate the matching tab button
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            tabButtons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(tabName.toLowerCase().substring(0, 4))) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Show the tab content
+            const tabContent = document.getElementById(tabName + 'Tab');
+            if (tabContent) {
+                tabContent.classList.add('active');
+            }
+
+            // Reset to all campaigns view if going to campaigns tab
+            if (tabName === 'campaigns') {
+                resetToAllCampaigns();
+            }
+        }
+
+        // ========== PAGINATION ==========
+        function paginate(data, page, size) {
+            const start = (page - 1) * size;
+            return data.slice(start, start + size);
+        }
+
+        function renderPagination(containerId, totalItems, currentPg, pageSz, onPageChange) {
+            const totalPages = Math.ceil(totalItems / pageSz);
+            const container = document.getElementById(containerId);
+            if (totalItems === 0) {
+                container.innerHTML = '<div class="pagination-info">No items to display</div>';
+                return;
+            }
+
+            const start = (currentPg - 1) * pageSz + 1;
+            const end = Math.min(currentPg * pageSz, totalItems);
+
+            let pagesHtml = '';
+            for (let i = 1; i <= totalPages && i <= 5; i++) {
+                pagesHtml += `<button class="pagination-btn ${i === currentPg ? 'active' : ''}" onclick="${onPageChange}(${i})">${i}</button>`;
+            }
+            if (totalPages > 5) {
+                pagesHtml += `<span style="padding: 0 8px;">...</span>`;
+                pagesHtml += `<button class="pagination-btn ${totalPages === currentPg ? 'active' : ''}" onclick="${onPageChange}(${totalPages})">${totalPages}</button>`;
+            }
+
+            container.innerHTML = `
+                <div class="pagination-info">Showing ${start}-${end} of ${totalItems}</div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn" onclick="${onPageChange}(${currentPg - 1})" ${currentPg === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>
+                    ${pagesHtml}
+                    <button class="pagination-btn" onclick="${onPageChange}(${currentPg + 1})" ${currentPg === totalPages ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>
+                </div>
+            `;
+        }
+
+        // ========== NAVIGATION ==========
+        function resetToAllCampaigns() {
+            currentCampaign = null; currentJob = null; currentView = 'campaigns';
+            document.getElementById('campaignListView').style.display = 'block';
+            document.getElementById('jobsListView').style.display = 'none';
+            document.getElementById('shiftsListView').style.display = 'none';
+            document.getElementById('contextHeader').style.display = 'none';
+            document.getElementById('newJobBtn').style.display = 'none';
+            document.getElementById('newShiftBtn').style.display = 'none';
+            document.getElementById('exportBtn').style.display = 'none';
+            updateBreadcrumb();
+            filterCampaigns();
+        }
+
+        function drillDownToCampaign(campaignId) {
+            currentCampaign = campaignsData.find(c => c.id === campaignId);
+            currentJob = null; currentView = 'jobs';
+            document.getElementById('campaignListView').style.display = 'none';
+            document.getElementById('jobsListView').style.display = 'block';
+            document.getElementById('shiftsListView').style.display = 'none';
+            document.getElementById('newJobBtn').style.display = 'inline-flex';
+            document.getElementById('newShiftBtn').style.display = 'none';
+            document.getElementById('exportBtn').style.display = 'inline-flex';
+            updateContextHeader(); updateBreadcrumb();
+            loadJobsForCampaign(campaignId);
+        }
+
+        function drillDownToJob(jobId) {
+            currentJob = jobsData.find(j => j.id === jobId);
+            currentView = 'shifts';
+            document.getElementById('campaignListView').style.display = 'none';
+            document.getElementById('jobsListView').style.display = 'none';
+            document.getElementById('shiftsListView').style.display = 'block';
+            document.getElementById('newJobBtn').style.display = 'none';
+            document.getElementById('newShiftBtn').style.display = 'inline-flex';
+            document.getElementById('exportBtn').style.display = 'none';
+            updateContextHeader(); updateBreadcrumb();
+            loadShiftsForJob(jobId);
+        }
+
+        function goBack() {
+            if (currentView === 'shifts') drillDownToCampaign(currentCampaign.id);
+            else if (currentView === 'jobs') resetToAllCampaigns();
+        }
+
+        function updateBreadcrumb() {
+            const bc = document.getElementById('campaignBreadcrumb');
+            if (currentView === 'campaigns') {
+                bc.innerHTML = `<div class="breadcrumb-item active"><i class="fas fa-flag"></i> All Campaigns</div>`;
+            } else if (currentView === 'jobs') {
+                bc.innerHTML = `
+                    <div class="breadcrumb-item"><a onclick="resetToAllCampaigns()"><i class="fas fa-flag"></i> All Campaigns</a></div>
+                    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                    <div class="breadcrumb-item active"><i class="fas fa-briefcase"></i> ${currentCampaign.campaignName}</div>`;
+            } else {
+                bc.innerHTML = `
+                    <div class="breadcrumb-item"><a onclick="resetToAllCampaigns()"><i class="fas fa-flag"></i> All Campaigns</a></div>
+                    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                    <div class="breadcrumb-item"><a onclick="drillDownToCampaign(${currentCampaign.id})"><i class="fas fa-briefcase"></i> ${currentCampaign.campaignName}</a></div>
+                    <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+                    <div class="breadcrumb-item active"><i class="fas fa-clock"></i> ${currentJob.volunteerJobName}</div>`;
+            }
+        }
+
+        function updateContextHeader() {
+            const header = document.getElementById('contextHeader');
+            const title = document.getElementById('contextTitle');
+            const meta = document.getElementById('contextMeta');
+            if (currentView === 'jobs' && currentCampaign) {
+                header.style.display = 'flex';
+                title.innerHTML = `<i class="fas fa-flag"></i> ${currentCampaign.campaignName}`;
+                meta.textContent = `${currentCampaign.type || 'Campaign'} | ${formatDate(currentCampaign.startDate)} - ${formatDate(currentCampaign.endDate)}`;
+            } else if (currentView === 'shifts' && currentJob) {
+                header.style.display = 'flex';
+                title.innerHTML = `<i class="fas fa-briefcase"></i> ${currentJob.volunteerJobName}`;
+                meta.textContent = `${currentJob.locationCity || ''} ${currentJob.locationState || ''}`;
+            } else { header.style.display = 'none'; }
+        }
+
+        // ========== MODAL FUNCTIONS ==========
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ========== CAMPAIGN FUNCTIONS ==========
+        function openCampaignModal(c = null) {
+            document.getElementById('campaignForm').reset();
+            document.getElementById('campaignId').value = '';
+            document.getElementById('campaignModalTitle').textContent = c ? 'Edit Campaign' : 'New Campaign';
+            if (c) {
+                document.getElementById('campaignId').value = c.id;
+                document.getElementById('campaignName').value = c.campaignName || '';
+                document.getElementById('campaignOwner').value = c.campaignOwner || '';
+                document.getElementById('campaignType').value = c.type || '';
+                document.getElementById('campaignStatus').value = c.status || 'Planned';
+                document.getElementById('campaignStartDate').value = c.startDate || '';
+                document.getElementById('campaignEndDate').value = c.endDate || '';
+                document.getElementById('campaignDescription').value = c.description || '';
+                document.getElementById('campaignTimeZone').value = c.volunteerWebsiteTimeZone || 'America/Los_Angeles';
+                document.getElementById('campaignActive').checked = c.active;
+            }
+            openModal('campaignModal');
+        }
+
+        async function saveCampaign(e) {
+            e.preventDefault();
+            const id = document.getElementById('campaignId').value;
+            const data = {
+                campaignName: document.getElementById('campaignName').value,
+                campaignOwner: document.getElementById('campaignOwner').value,
+                type: document.getElementById('campaignType').value,
+                status: document.getElementById('campaignStatus').value,
+                startDate: document.getElementById('campaignStartDate').value || null,
+                endDate: document.getElementById('campaignEndDate').value || null,
+                description: document.getElementById('campaignDescription').value,
+                volunteerWebsiteTimeZone: document.getElementById('campaignTimeZone').value,
+                active: document.getElementById('campaignActive').checked
+            };
+            try {
+                const res = await fetch(id ? `/api/campaigns/${id}` : '/api/campaigns', {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) { showToast(`Campaign ${id ? 'updated' : 'created'}`, 'success'); closeModal('campaignModal'); loadCampaigns(); loadStats(); }
+                else showToast(result.message, 'error');
+            } catch (e) { showToast('Error saving', 'error'); }
+        }
+
+        async function deleteCampaign(id, name) {
+            if (!confirm(`Are you sure you want to delete the campaign "${name}"?\n\nThis will also delete all associated jobs, shifts, and registrations. This action cannot be undone.`)) {
+                return;
+            }
+            try {
+                const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Campaign deleted successfully', 'success');
+                    loadCampaigns();
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error deleting campaign', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting campaign', 'error');
+            }
+        }
+
+        function openCloneCampaignModal(campaignId, campaignName, startDate) {
+            document.getElementById('cloneSourceCampaignId').value = campaignId;
+            document.getElementById('cloneSourceName').value = campaignName;
+            document.getElementById('cloneNewName').value = campaignName + ' (Copy)';
+            
+            // Set default new start date to today or the original start date if in the future
+            const today = new Date().toISOString().split('T')[0];
+            if (startDate && startDate > today) {
+                document.getElementById('cloneNewStartDate').value = startDate;
+            } else {
+                document.getElementById('cloneNewStartDate').value = today;
+            }
+            
+            openModal('cloneCampaignModal');
+        }
+
+        async function submitCloneCampaign(e) {
+            e.preventDefault();
+            const sourceId = document.getElementById('cloneSourceCampaignId').value;
+            const newName = document.getElementById('cloneNewName').value;
+            const newStartDate = document.getElementById('cloneNewStartDate').value;
+            
+            try {
+                const res = await fetch(`/api/campaigns/${sourceId}/clone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newName, newStartDate })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Campaign cloned successfully!', 'success');
+                    closeModal('cloneCampaignModal');
+                    loadCampaigns();
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error cloning campaign', 'error');
+                }
+            } catch (e) {
+                showToast('Error cloning campaign', 'error');
+            }
+        }
+
+        function filterCampaigns() {
+            const search = document.getElementById('campaignSearch').value.toLowerCase();
+            const status = document.getElementById('campaignStatusFilter').value;
+            const showAll = document.getElementById('campaignShowAll').value === 'all';
+
+            filteredCampaigns = campaignsData.filter(c => {
+                if (!showAll && !c.active) return false;
+                if (search && !c.campaignName.toLowerCase().includes(search)) return false;
+                if (status && c.status !== status) return false;
+                return true;
+            });
+            currentPage.campaigns = 1;
+            renderCampaignsTable();
+        }
+
+        function clearCampaignFilters() {
+            document.getElementById('campaignSearch').value = '';
+            document.getElementById('campaignStatusFilter').value = '';
+            document.getElementById('campaignShowAll').value = 'all';
+            document.getElementById('campaignShowAll').value = 'active';
+            filterCampaigns();
+        }
+
+        function changeCampaignPage(page) { currentPage.campaigns = page; renderCampaignsTable(); }
+
+        function renderCampaignsTable() {
+            const pageData = paginate(filteredCampaigns, currentPage.campaigns, pageSize.campaigns);
+            const tbody = document.getElementById('campaignsTable');
+            if (pageData.length > 0) {
+                tbody.innerHTML = pageData.map(c => `
+                    <tr>
+                        <td><span class="drill-link" onclick="drillDownToCampaign(${c.id})"><strong>${c.campaignName}</strong></span></td>
+                        <td><span class="status-badge status-${(c.status || 'planned').toLowerCase().replace(' ', '-')}">${c.status || 'Planned'}</span></td>
+                        <td>${formatDate(c.startDate)} - ${formatDate(c.endDate)}</td>
+                        <td><span class="drill-link" onclick="drillDownToCampaign(${c.id})"><span class="count-badge">${jobCounts[c.id] || 0}</span> Jobs</span></td>
+                        <td><span class="status-badge status-${c.active ? 'confirmed' : 'cancelled'}">${c.active ? 'Yes' : 'No'}</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-outline btn-small" title="Clone Campaign" onclick="event.stopPropagation(); ${isAdmin ? `openCloneCampaignModal(${c.id}, '${c.campaignName.replace(/'/g, "\\'")}', '${c.startDate || ''}')` : `alert('You do not have permission. Only ADMIN can clone campaigns.')`}" ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-outline btn-small" title="Export Volunteers" onclick="event.stopPropagation(); exportCampaignVolunteers(${c.id})"><i class="fas fa-download"></i></button>
+                            <button class="btn btn-outline btn-small" title="Edit" onclick='event.stopPropagation(); ${isAdmin ? `openCampaignModal(${JSON.stringify(c)})` : `alert('You do not have permission. Only ADMIN can edit campaigns.')`}' ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-small" title="Delete" onclick="event.stopPropagation(); ${isAdmin ? `deleteCampaign(${c.id}, '${c.campaignName.replace(/'/g, "\\'")}')` : `alert('You do not have permission. Only ADMIN can delete campaigns.')`}" ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-primary btn-small" title="View Jobs" onclick="drillDownToCampaign(${c.id})"><i class="fas fa-arrow-right"></i></button>
+                        </td>
+                    </tr>`).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No campaigns found</td></tr>'; }
+            renderPagination('campaignPagination', filteredCampaigns.length, currentPage.campaigns, pageSize.campaigns, 'changeCampaignPage');
+        }
+
+        // ========== JOB FUNCTIONS ==========
+        function openJobModal(j = null) {
+            document.getElementById('jobForm').reset();
+            document.getElementById('jobId').value = '';
+            document.getElementById('jobCampaignId').value = currentCampaign?.id || '';
+            document.getElementById('jobModalTitle').textContent = j ? 'Edit Job' : 'New Job';
+            if (j) {
+                document.getElementById('jobId').value = j.id;
+                document.getElementById('jobName').value = j.volunteerJobName || '';
+                document.getElementById('jobSkills').value = j.skillsNeeded || '';
+                document.getElementById('jobTeamLead').value = j.teamLead || '';
+                document.getElementById('jobDescription').value = j.description || '';
+                document.getElementById('jobStreet').value = j.locationStreet || '';
+                document.getElementById('jobCity').value = j.locationCity || '';
+                document.getElementById('jobState').value = j.locationState || '';
+                document.getElementById('jobZip').value = j.locationZip || '';
+                document.getElementById('jobDisplayOnWebsite').checked = j.displayOnWebsite;
+                document.getElementById('jobInactive').checked = j.inactive;
+            }
+            openModal('jobModal');
+        }
+
+        async function saveJob(e) {
+            e.preventDefault();
+            const id = document.getElementById('jobId').value;
+            const campaignId = document.getElementById('jobCampaignId').value || currentCampaign?.id;
+            const data = {
+                volunteerJobName: document.getElementById('jobName').value,
+                campaign: { id: parseInt(campaignId) },
+                skillsNeeded: document.getElementById('jobSkills').value,
+                teamLead: document.getElementById('jobTeamLead').value,
+                description: document.getElementById('jobDescription').value,
+                locationStreet: document.getElementById('jobStreet').value,
+                locationCity: document.getElementById('jobCity').value,
+                locationState: document.getElementById('jobState').value,
+                locationZip: document.getElementById('jobZip').value,
+                displayOnWebsite: document.getElementById('jobDisplayOnWebsite').checked,
+                inactive: document.getElementById('jobInactive').checked
+            };
+            try {
+                const res = await fetch(id ? `/api/jobs/${id}` : '/api/jobs', {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) { showToast(`Job ${id ? 'updated' : 'created'}`, 'success'); closeModal('jobModal'); loadJobsForCampaign(campaignId); loadStats(); }
+                else showToast(result.message, 'error');
+            } catch (e) { showToast('Error saving', 'error'); }
+        }
+
+        function openCloneJobModal(jobId, jobName) {
+            document.getElementById('cloneSourceJobId').value = jobId;
+            document.getElementById('cloneSourceJobName').value = jobName;
+            document.getElementById('cloneNewJobName').value = jobName + ' (Copy)';
+            openModal('cloneJobModal');
+        }
+
+        async function submitCloneJob(e) {
+            e.preventDefault();
+            const sourceId = document.getElementById('cloneSourceJobId').value;
+            const newName = document.getElementById('cloneNewJobName').value;
+            
+            try {
+                const res = await fetch(`/api/jobs/${sourceId}/clone`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ newName })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Job cloned successfully with all shifts!', 'success');
+                    closeModal('cloneJobModal');
+                    if (currentCampaign) {
+                        loadJobsForCampaign(currentCampaign.id);
+                    }
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error cloning job', 'error');
+                }
+            } catch (e) {
+                showToast('Error cloning job', 'error');
+            }
+        }
+
+        async function deleteJob(jobId, jobName) {
+            if (!confirm(`Are you sure you want to delete the job "${jobName}"?\n\nThis will also delete all shifts and registrations associated with this job. This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/jobs/${jobId}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Job deleted successfully', 'success');
+                    if (currentCampaign) {
+                        loadJobsForCampaign(currentCampaign.id);
+                    }
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error deleting job', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting job', 'error');
+            }
+        }
+
+        function filterJobs() {
+            const search = document.getElementById('jobSearch').value.toLowerCase();
+            const location = document.getElementById('jobLocationFilter').value.toLowerCase();
+            const displayFilter = document.getElementById('jobDisplayFilter').value;
+            filteredJobs = jobsData.filter(j => {
+                if (search && !j.volunteerJobName.toLowerCase().includes(search)) return false;
+                if (location && !(j.locationCity || '').toLowerCase().includes(location)) return false;
+                if (displayFilter === 'enabled' && !j.displayOnWebsite) return false;
+                if (displayFilter === 'disabled' && j.displayOnWebsite) return false;
+                return true;
+            });
+            currentPage.jobs = 1;
+            renderJobsTable();
+        }
+
+        function clearJobFilters() {
+            document.getElementById('jobSearch').value = '';
+            document.getElementById('jobLocationFilter').value = '';
+            document.getElementById('jobDisplayFilter').value = 'all';
+            filterJobs();
+        }
+
+        let jobSortOrder = 'asc';
+        function sortJobsBy(field) {
+            if (field === 'name') {
+                jobSortOrder = jobSortOrder === 'asc' ? 'desc' : 'asc';
+                filteredJobs.sort((a, b) => {
+                    const nameA = a.volunteerJobName.toLowerCase();
+                    const nameB = b.volunteerJobName.toLowerCase();
+                    return jobSortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+                });
+
+                // Update sort icon
+                const icon = document.getElementById('jobNameSortIcon');
+                if (icon) {
+                    icon.className = jobSortOrder === 'asc' ? 'fas fa-sort-up sort-icon' : 'fas fa-sort-down sort-icon';
+                }
+
+                currentPage.jobs = 1;
+                renderJobsTable();
+            }
+        }
+
+        function changeJobPage(page) { currentPage.jobs = page; renderJobsTable(); }
+
+        function renderJobsTable() {
+            const pageData = paginate(filteredJobs, currentPage.jobs, pageSize.jobs);
+            const tbody = document.getElementById('jobsTable');
+            if (pageData.length > 0) {
+                tbody.innerHTML = pageData.map(j => {
+                    // Build full address - show only non-empty parts
+                    const addressParts = [];
+                    if (j.locationStreet && j.locationStreet.trim()) addressParts.push(j.locationStreet);
+                    if (j.locationCity && j.locationCity.trim()) addressParts.push(j.locationCity);
+                    if (j.locationState && j.locationState.trim()) addressParts.push(j.locationState);
+                    if (j.locationZip && j.locationZip.trim()) addressParts.push(j.locationZip);
+                    const fullAddress = addressParts.length > 0 ? addressParts.join(', ') : '-';
+
+                    return `
+                    <tr>
+                        <td><span class="drill-link" onclick="drillDownToJob(${j.id})"><strong>${j.volunteerJobName}</strong></span></td>
+                        <td>${fullAddress}</td>
+                        <td>${j.skillsNeeded || '-'}</td>
+                        <td><span class="drill-link" onclick="drillDownToJob(${j.id})"><span class="count-badge">${shiftCounts[j.id] || 0}</span> Shifts</span></td>
+                        <td><span class="status-badge status-${j.displayOnWebsite ? 'confirmed' : 'cancelled'}">${j.displayOnWebsite ? 'Enabled' : 'Disabled'}</span></td>
+                        <td class="action-buttons">
+                            <button class="btn btn-outline btn-small" title="Clone Job" onclick="event.stopPropagation(); openCloneJobModal(${j.id}, '${j.volunteerJobName.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>
+                            <button class="btn btn-outline btn-small" title="Edit Job" onclick='event.stopPropagation(); openJobModal(${JSON.stringify(j)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-small" title="Delete Job" onclick="event.stopPropagation(); deleteJob(${j.id}, '${j.volunteerJobName.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-primary btn-small" title="View Shifts" onclick="drillDownToJob(${j.id})"><i class="fas fa-arrow-right"></i></button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No jobs found</td></tr>'; }
+            renderPagination('jobPagination', filteredJobs.length, currentPage.jobs, pageSize.jobs, 'changeJobPage');
+        }
+
+        // ========== SHIFT FUNCTIONS ==========
+        function openShiftModal(s = null) {
+            document.getElementById('shiftForm').reset();
+            document.getElementById('shiftId').value = '';
+            document.getElementById('shiftJobId').value = currentJob?.id || '';
+            document.getElementById('shiftModalTitle').textContent = s ? 'Edit Shift' : 'New Shift';
+            if (s) {
+                document.getElementById('shiftId').value = s.id;
+                document.getElementById('shiftStartDate').value = s.startDate || '';
+                document.getElementById('shiftStartTime').value = s.startTime || '';
+                document.getElementById('shiftDuration').value = s.durationHours || 2;
+                document.getElementById('shiftDesiredVolunteers').value = s.desiredNumVolunteers || '';
+                document.getElementById('shiftDescription').value = s.description || '';
+            }
+            openModal('shiftModal');
+        }
+
+        async function saveShift(e) {
+            e.preventDefault();
+            const id = document.getElementById('shiftId').value;
+            const jobId = document.getElementById('shiftJobId').value || currentJob?.id;
+            const data = {
+                volunteerJob: { id: parseInt(jobId) },
+                startDate: document.getElementById('shiftStartDate').value,
+                startTime: document.getElementById('shiftStartTime').value,
+                durationHours: parseFloat(document.getElementById('shiftDuration').value),
+                desiredNumVolunteers: document.getElementById('shiftDesiredVolunteers').value ? parseInt(document.getElementById('shiftDesiredVolunteers').value) : null,
+                description: document.getElementById('shiftDescription').value
+            };
+            try {
+                const res = await fetch(id ? `/api/shifts/${id}` : '/api/shifts', {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) { showToast(`Shift ${id ? 'updated' : 'created'}`, 'success'); closeModal('shiftModal'); loadShiftsForJob(jobId); loadStats(); }
+                else showToast(result.message, 'error');
+            } catch (e) { showToast('Error saving', 'error'); }
+        }
+
+        async function deleteShift(shiftId, shiftInfo) {
+            if (!confirm(`Are you sure you want to delete the shift "${shiftInfo}"?\n\nThis will also delete all registrations for this shift. This action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/shifts/${shiftId}`, {
+                    method: 'DELETE'
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Shift deleted successfully', 'success');
+                    if (currentJob) {
+                        loadShiftsForJob(currentJob.id);
+                    }
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error deleting shift', 'error');
+                }
+            } catch (e) {
+                showToast('Error deleting shift', 'error');
+            }
+        }
+
+        function filterShifts() {
+            const dateFrom = document.getElementById('shiftDateFrom').value;
+            const dateTo = document.getElementById('shiftDateTo').value;
+            const availability = document.getElementById('shiftAvailability').value;
+            filteredShifts = shiftsData.filter(s => {
+                const registeredCount = shiftRegistrationCounts[s.id] || s.currentNumVolunteers || 0;
+                if (dateFrom && s.startDate < dateFrom) return false;
+                if (dateTo && s.startDate > dateTo) return false;
+                if (availability === 'available' && s.desiredNumVolunteers && registeredCount >= s.desiredNumVolunteers) return false;
+                if (availability === 'full' && (!s.desiredNumVolunteers || registeredCount < s.desiredNumVolunteers)) return false;
+                return true;
+            });
+            currentPage.shifts = 1;
+            renderShiftsTable();
+        }
+
+        function clearShiftFilters() {
+            document.getElementById('shiftDateFrom').value = '';
+            document.getElementById('shiftDateTo').value = '';
+            document.getElementById('shiftAvailability').value = '';
+            filterShifts();
+        }
+
+        function changeShiftPage(page) { currentPage.shifts = page; renderShiftsTable(); }
+
+        function renderShiftsTable() {
+            const pageData = paginate(filteredShifts, currentPage.shifts, pageSize.shifts);
+            const tbody = document.getElementById('shiftsTable');
+            if (pageData.length > 0) {
+                tbody.innerHTML = pageData.map(s => {
+                    // Use registration count from shiftRegistrationCounts, fallback to currentNumVolunteers
+                    const registeredCount = shiftRegistrationCounts[s.id] || s.currentNumVolunteers || 0;
+                    const isFull = s.desiredNumVolunteers && registeredCount >= s.desiredNumVolunteers;
+                    return `
+                    <tr>
+                        <td><code>${s.shiftId}</code></td>
+                        <td>${formatDate(s.startDate)}</td>
+                        <td>${formatTime(s.startTime)}</td>
+                        <td>${s.durationHours} hrs</td>
+                        <td><strong>${registeredCount}</strong> / ${s.desiredNumVolunteers || '∞'} ${isFull ? '<span class="status-badge status-completed">Full</span>' : ''}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-primary btn-small" onclick="viewShiftRegistrations(${s.id})" title="View Registrations"><i class="fas fa-users"></i></button>
+                            <button class="btn btn-outline btn-small" onclick='openShiftModal(${JSON.stringify(s)})' title="Edit Shift"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger btn-small" onclick="deleteShift(${s.id}, '${formatDate(s.startDate)} ${formatTime(s.startTime)}')" title="Delete Shift"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No shifts found</td></tr>'; }
+            renderPagination('shiftPagination', filteredShifts.length, currentPage.shifts, pageSize.shifts, 'changeShiftPage');
+        }
+
+        // ========== VOLUNTEER FUNCTIONS ==========
+        function openVolunteerModal(v = null) {
+            document.getElementById('volunteerForm').reset();
+            document.getElementById('volunteerId').value = '';
+            document.getElementById('volunteerModalTitle').textContent = v ? 'Edit Volunteer' : 'Add Volunteer';
+            if (v) {
+                document.getElementById('volunteerId').value = v.id;
+                document.getElementById('volunteerFirstName').value = v.firstName || '';
+                document.getElementById('volunteerLastName').value = v.lastName || '';
+                document.getElementById('volunteerEmail').value = v.email || '';
+                document.getElementById('volunteerPhone').value = v.phoneNumber || '';
+                document.getElementById('volunteerSkills').value = v.skills || '';
+                document.getElementById('volunteerCity').value = v.city || '';
+                document.getElementById('volunteerState').value = v.state || '';
+            }
+            openModal('volunteerModal');
+        }
+
+        async function saveVolunteer(e) {
+            e.preventDefault();
+            const id = document.getElementById('volunteerId').value;
+            const data = {
+                firstName: document.getElementById('volunteerFirstName').value,
+                lastName: document.getElementById('volunteerLastName').value,
+                email: document.getElementById('volunteerEmail').value,
+                phoneNumber: document.getElementById('volunteerPhone').value,
+                skills: document.getElementById('volunteerSkills').value,
+                city: document.getElementById('volunteerCity').value,
+                state: document.getElementById('volunteerState').value,
+                active: true
+            };
+            try {
+                const res = await fetch(id ? `/api/volunteers/${id}` : '/api/volunteers/register', {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) { showToast(`Volunteer ${id ? 'updated' : 'added'}`, 'success'); closeModal('volunteerModal'); loadAllVolunteers(); loadStats(); }
+                else showToast(result.message, 'error');
+            } catch (e) { showToast('Error saving', 'error'); }
+        }
+
+        async function viewVolunteerDetails(volunteerId) {
+            try {
+                // Fetch volunteer details
+                const volRes = await fetch(`/api/volunteers/${volunteerId}`);
+                const volResult = await volRes.json();
+                const volunteer = volResult.data;
+
+                if (!volunteer) {
+                    showToast('Volunteer not found', 'error');
+                    return;
+                }
+
+                // Update volunteer information section
+                document.getElementById('volunteerDetailName').textContent = `${volunteer.firstName} ${volunteer.lastName}`;
+                document.getElementById('volunteerDetailFullName').textContent = `${volunteer.firstName} ${volunteer.lastName}`;
+                document.getElementById('volunteerDetailEmail').textContent = volunteer.email;
+                document.getElementById('volunteerDetailEmail').href = `mailto:${volunteer.email}`;
+                document.getElementById('volunteerDetailPhone').textContent = volunteer.phoneNumber || '-';
+                document.getElementById('volunteerDetailSkills').textContent = volunteer.skills || '-';
+
+                // Fetch volunteer registrations
+                const regRes = await fetch(`/api/registrations/volunteer/${volunteerId}`);
+                const regResult = await regRes.json();
+                const registrations = regResult.data || [];
+
+                // Populate registrations table
+                const tbody = document.getElementById('volunteerRegistrationsBody');
+                const noRegsMsg = document.getElementById('noRegistrationsMessage');
+
+                if (registrations.length > 0) {
+                    tbody.innerHTML = registrations.map(r => {
+                        const campaignName = r.volunteerJob?.campaign?.campaignName || '-';
+                        const jobName = r.volunteerJob?.volunteerJobName || '-';
+                        const shiftDate = formatDate(r.volunteerShift?.startDate) || '-';
+                        const shiftTime = formatTime(r.volunteerShift?.startTime) || '-';
+                        const duration = r.volunteerShift?.durationHours || '-';
+                        const status = r.status || 'PENDING';
+                        const checkInCode = r.checkInCode || '-';
+
+                        return `
+                            <tr>
+                                <td><strong>${campaignName}</strong></td>
+                                <td>${jobName}</td>
+                                <td>
+                                    <div style="font-size: 0.85rem;">
+                                        <div><strong>${shiftDate}</strong></div>
+                                        <div style="color: #666;">${shiftTime} (${duration} hrs)</div>
+                                    </div>
+                                </td>
+                                <td><span class="status-badge status-${status.toLowerCase()}">${status}</span></td>
+                                <td><code>${checkInCode}</code></td>
+                            </tr>`;
+                    }).join('');
+                    noRegsMsg.style.display = 'none';
+                } else {
+                    tbody.innerHTML = '';
+                    noRegsMsg.style.display = 'block';
+                }
+
+                openModal('volunteerDetailModal');
+            } catch (e) {
+                console.error('Error loading volunteer details:', e);
+                showToast('Error loading volunteer details', 'error');
+            }
+        }
+
+        function filterVolunteers() {
+            const search = document.getElementById('volunteerSearch').value.toLowerCase();
+            const status = document.getElementById('volunteerStatusFilter').value;
+            const hasReg = document.getElementById('volunteerRegFilter').value;
+            filteredVolunteers = volunteersData.filter(v => {
+                if (search && !`${v.firstName} ${v.lastName} ${v.email} ${v.phoneNumber || ''} ${v.skills || ''}`.toLowerCase().includes(search)) return false;
+                if (status === 'active' && !v.active) return false;
+                if (status === 'inactive' && v.active) return false;
+                if (hasReg === 'yes' && (!v.registrationCount || v.registrationCount === 0)) return false;
+                if (hasReg === 'no' && v.registrationCount > 0) return false;
+                return true;
+            });
+            currentPage.volunteers = 1;
+            renderVolunteersTable();
+        }
+
+        function clearVolunteerFilters() {
+            document.getElementById('volunteerSearch').value = '';
+            document.getElementById('volunteerStatusFilter').value = '';
+            document.getElementById('volunteerRegFilter').value = '';
+            filterVolunteers();
+        }
+
+        function changeVolunteerPage(page) { currentPage.volunteers = page; renderVolunteersTable(); }
+
+        function renderVolunteersTable() {
+            const pageData = paginate(filteredVolunteers, currentPage.volunteers, pageSize.volunteers);
+            const tbody = document.getElementById('volunteersTableBody');
+            if (pageData.length > 0) {
+                tbody.innerHTML = pageData.map(v => `
+                    <tr>
+                        <td><span class="drill-link" onclick="viewVolunteerDetails(${v.id})"><strong>${v.firstName} ${v.lastName}</strong></span></td>
+                        <td><a href="mailto:${v.email}">${v.email}</a></td>
+                        <td>${v.phoneNumber || '-'}</td>
+                        <td><span class="count-badge">${v.registrationCount || 0}</span></td>
+                        <td class="action-buttons"><button class="btn btn-outline btn-small" onclick='openVolunteerModal(${JSON.stringify(v)})'><i class="fas fa-edit"></i></button></td>
+                    </tr>`).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="5" class="no-data">No volunteers found</td></tr>'; }
+            renderPagination('volunteerPagination', filteredVolunteers.length, currentPage.volunteers, pageSize.volunteers, 'changeVolunteerPage');
+        }
+
+        // ========== REGISTRATION FUNCTIONS ==========
+        function filterRegistrations() {
+            const search = document.getElementById('registrationSearch').value.toLowerCase();
+            const campaignId = document.getElementById('registrationCampaignFilter').value;
+            const status = document.getElementById('registrationStatusFilter').value;
+            filteredRegistrations = registrationsData.filter(r => {
+                if (search && !`${r.volunteer?.firstName} ${r.volunteer?.lastName}`.toLowerCase().includes(search)) return false;
+                if (campaignId && r.volunteerJob?.campaign?.id != campaignId) return false;
+                if (status && r.status !== status) return false;
+                return true;
+            });
+            currentPage.registrations = 1;
+            renderRegistrationsTable();
+        }
+
+        function clearRegistrationFilters() {
+            document.getElementById('registrationSearch').value = '';
+            document.getElementById('registrationCampaignFilter').value = '';
+            document.getElementById('registrationStatusFilter').value = '';
+            filterRegistrations();
+        }
+
+        function changeRegistrationPage(page) { currentPage.registrations = page; renderRegistrationsTable(); }
+
+        function renderRegistrationsTable() {
+            const pageData = paginate(filteredRegistrations, currentPage.registrations, pageSize.registrations);
+            const tbody = document.getElementById('registrationsTable');
+            if (pageData.length > 0) {
+                tbody.innerHTML = pageData.map(r => `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td><strong>${r.volunteer?.firstName} ${r.volunteer?.lastName}</strong><br><small>${r.volunteer?.email}</small></td>
+                        <td><strong>${r.volunteerJob?.campaign?.campaignName || '-'}</strong><br><small>${r.volunteerJob?.volunteerJobName || '-'}</small><br><small style="color:#888">${formatDate(r.volunteerShift?.startDate)} ${formatTime(r.volunteerShift?.startTime)}</small></td>
+                        <td><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></td>
+                        <td>${formatDate(r.registrationDate)}</td>
+                        <td>
+                            ${r.status === 'PENDING' ? `<button class="btn btn-small btn-primary" onclick="updateStatus(${r.id},'confirm')">Confirm</button>` : ''}
+                            ${r.status === 'CONFIRMED' ? `<button class="btn btn-small btn-primary" onclick="updateStatus(${r.id},'complete')">Complete</button>` : ''}
+                            ${r.status !== 'CANCELLED' && r.status !== 'COMPLETED' ? `<button class="btn btn-small btn-outline" onclick="updateStatus(${r.id},'cancel')">Cancel</button>` : '-'}
+                        </td>
+                    </tr>`).join('');
+            } else { tbody.innerHTML = '<tr><td colspan="6" class="no-data">No registrations found</td></tr>'; }
+            renderPagination('registrationPagination', filteredRegistrations.length, currentPage.registrations, pageSize.registrations, 'changeRegistrationPage');
+        }
+
+        async function updateStatus(id, action) {
+            try {
+                const res = await fetch(`/api/registrations/${id}/${action}`, { method: 'PUT' });
+                const result = await res.json();
+                if (result.success) { showToast(`Registration ${action}ed`, 'success'); loadRegistrations(); loadStats(); }
+                else showToast(result.message, 'error');
+            } catch (e) { showToast('Error', 'error'); }
+        }
+
+        // ========== SHIFT REGISTRATION FUNCTIONS ==========
+        async function openRegisterForShiftModal(shiftId) {
+            const shift = shiftsData.find(s => s.id === shiftId);
+            if (!shift) return;
+            currentShiftForRegistration = shift;
+            document.getElementById('registerShiftId').value = shiftId;
+            document.getElementById('registerShiftJob').textContent = currentJob?.volunteerJobName || 'Job';
+            document.getElementById('registerShiftDateTime').textContent = `${formatDate(shift.startDate)} at ${formatTime(shift.startTime)} (${shift.durationHours} hrs)`;
+            document.getElementById('volunteerSearchInput').value = '';
+            document.getElementById('volunteerSearchResults').style.display = 'none';
+            document.getElementById('selectedVolunteerDisplay').style.display = 'none';
+            document.getElementById('selectedVolunteerId').value = '';
+            document.getElementById('newVolFirstName').value = '';
+            document.getElementById('newVolLastName').value = '';
+            document.getElementById('newVolEmail').value = '';
+            document.getElementById('newVolPhone').value = '';
+            openModal('registerShiftModal');
+        }
+
+        function searchVolunteersForShift() {
+            const query = document.getElementById('volunteerSearchInput').value.toLowerCase();
+            const resultsDiv = document.getElementById('volunteerSearchResults');
+            if (query.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+            const matches = volunteersData.filter(v => 
+                `${v.firstName} ${v.lastName} ${v.email}`.toLowerCase().includes(query)
+            ).slice(0, 10);
+            if (matches.length > 0) {
+                resultsDiv.innerHTML = matches.map(v => `
+                    <div style="padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;" 
+                         onmouseover="this.style.background='#f5f5f5'" 
+                         onmouseout="this.style.background='white'"
+                         onclick="selectVolunteerForShift(${v.id}, '${v.firstName} ${v.lastName}', '${v.email}')">
+                        <strong>${v.firstName} ${v.lastName}</strong><br>
+                        <small style="color: #666;">${v.email}</small>
+                    </div>
+                `).join('');
+                resultsDiv.style.display = 'block';
+            } else {
+                resultsDiv.innerHTML = '<div style="padding: 10px; color: #666;">No volunteers found</div>';
+                resultsDiv.style.display = 'block';
+            }
+        }
+
+        function selectVolunteerForShift(id, name, email) {
+            document.getElementById('selectedVolunteerId').value = id;
+            document.getElementById('selectedVolunteerName').textContent = `${name} (${email})`;
+            document.getElementById('selectedVolunteerDisplay').style.display = 'block';
+            document.getElementById('volunteerSearchResults').style.display = 'none';
+            document.getElementById('volunteerSearchInput').value = name;
+            // Clear new volunteer fields
+            document.getElementById('newVolFirstName').value = '';
+            document.getElementById('newVolLastName').value = '';
+            document.getElementById('newVolEmail').value = '';
+            document.getElementById('newVolPhone').value = '';
+        }
+
+        async function registerVolunteerForShift() {
+            const shiftId = document.getElementById('registerShiftId').value;
+            let volunteerEmail = '';
+            const selectedId = document.getElementById('selectedVolunteerId').value;
+            
+            if (selectedId) {
+                const vol = volunteersData.find(v => v.id == selectedId);
+                volunteerEmail = vol?.email;
+            } else {
+                // Create new volunteer first
+                const firstName = document.getElementById('newVolFirstName').value;
+                const lastName = document.getElementById('newVolLastName').value;
+                const email = document.getElementById('newVolEmail').value;
+                const phone = document.getElementById('newVolPhone').value;
+                
+                if (!firstName || !lastName || !email) {
+                    showToast('Please select a volunteer or fill in new volunteer details', 'error');
+                    return;
+                }
+                
+                try {
+                    const res = await fetch('/api/volunteers/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ firstName, lastName, email, phoneNumber: phone, active: true })
+                    });
+                    const result = await res.json();
+                    if (!result.success) {
+                        showToast(result.message || 'Error creating volunteer', 'error');
+                        return;
+                    }
+                    volunteerEmail = email;
+                    loadAllVolunteers();
+                } catch (e) {
+                    showToast('Error creating volunteer', 'error');
+                    return;
+                }
+            }
+            
+            // Register for shift
+            try {
+                const res = await fetch('/api/registrations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shiftId: parseInt(shiftId), volunteerEmail })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Volunteer registered successfully!', 'success');
+                    closeModal('registerShiftModal');
+                    loadShiftsForJob(currentJob.id);
+                    loadRegistrations();
+                    loadStats();
+                } else {
+                    showToast(result.message || 'Error registering', 'error');
+                }
+            } catch (e) {
+                showToast('Error registering volunteer', 'error');
+            }
+        }
+
+        async function viewShiftRegistrations(shiftId) {
+            const shift = shiftsData.find(s => s.id === shiftId);
+            if (!shift) return;
+            document.getElementById('viewShiftInfo').textContent = `${formatDate(shift.startDate)} ${formatTime(shift.startTime)}`;
+            
+            try {
+                const res = await fetch(`/api/registrations/shift/${shiftId}`);
+                const result = await res.json();
+                const shiftRegs = result.data || [];
+                
+                const tbody = document.getElementById('shiftRegistrationsTableBody');
+                if (shiftRegs.length > 0) {
+                    tbody.innerHTML = shiftRegs.map(r => `
+                        <tr>
+                            <td><strong>${r.volunteer?.firstName || ''} ${r.volunteer?.lastName || ''}</strong></td>
+                            <td>${r.volunteer?.email || '-'}</td>
+                            <td>${r.volunteer?.phoneNumber || '-'}</td>
+                            <td><span class="status-badge status-${(r.status || 'pending').toLowerCase()}">${r.status || 'PENDING'}</span></td>
+                            <td>${r.checkedIn ? '<span class="status-badge status-confirmed">Yes</span>' : '<span class="status-badge status-pending">No</span>'}</td>
+                            <td>${r.checkInCode || '-'}</td>
+                            <td>
+                                ${r.status === 'PENDING' ? `<button class="btn btn-small btn-primary" onclick="updateStatus(${r.id},'confirm'); setTimeout(() => viewShiftRegistrations(${shiftId}), 500);">Confirm</button>` : ''}
+                                ${r.status !== 'CANCELLED' ? `<button class="btn btn-small btn-outline" onclick="updateStatus(${r.id},'cancel'); setTimeout(() => viewShiftRegistrations(${shiftId}), 500);">Cancel</button>` : ''}
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px; color: #666;">No registrations for this shift</td></tr>';
+                }
+                document.getElementById('shiftRegistrationsTotalCount').textContent = shiftRegs.length;
+                openModal('shiftRegistrationsModal');
+            } catch (e) {
+                console.error('Error loading registrations:', e);
+                showToast('Error loading registrations', 'error');
+            }
+        }
+
+        async function exportCampaignVolunteers(campaignId) {
+            const campaign = campaignsData.find(c => c.id === campaignId);
+            if (!campaign) return;
+            currentCampaign = campaign;
+            await openExportModal();
+        }
+
+        // ========== EXPORT FUNCTIONS ==========
+        async function openExportModal() {
+            if (!currentCampaign) return;
+            document.getElementById('exportCampaignName').textContent = currentCampaign.campaignName;
+            try {
+                const res = await fetch(`/api/registrations/campaign/${currentCampaign.id}`);
+                const result = await res.json();
+                exportData = result.data || [];
+                sortExportData();
+                openModal('exportModal');
+            } catch (e) { 
+                console.error('Error loading export data:', e);
+                showToast('Error loading data', 'error'); 
+            }
+        }
+
+        function sortExportData() {
+            const sortBy = document.getElementById('exportSortBy').value;
+            const order = document.getElementById('exportSortOrder').value;
+            exportData.sort((a, b) => {
+                let valA, valB;
+                switch (sortBy) {
+                    case 'name': valA = `${a.volunteer?.firstName} ${a.volunteer?.lastName}`; valB = `${b.volunteer?.firstName} ${b.volunteer?.lastName}`; break;
+                    case 'job': valA = a.volunteerJob?.volunteerJobName || ''; valB = b.volunteerJob?.volunteerJobName || ''; break;
+                    case 'shift': valA = `${a.volunteerShift?.startDate} ${a.volunteerShift?.startTime}`; valB = `${b.volunteerShift?.startDate} ${b.volunteerShift?.startTime}`; break;
+                    case 'status': valA = a.status; valB = b.status; break;
+                    default: valA = ''; valB = '';
+                }
+                if (order === 'asc') return valA.localeCompare(valB);
+                return valB.localeCompare(valA);
+            });
+            renderExportTable();
+        }
+
+        function sortExportByColumn(col) {
+            document.getElementById('exportSortBy').value = col;
+            sortExportData();
+        }
+
+        function renderExportTable() {
+            const tbody = document.getElementById('exportTableBody');
+            tbody.innerHTML = exportData.map(r => `
+                <tr>
+                    <td>${r.volunteer?.firstName} ${r.volunteer?.lastName}</td>
+                    <td>${r.volunteer?.email}</td>
+                    <td>${r.volunteer?.phoneNumber || '-'}</td>
+                    <td>${r.volunteerJob?.volunteerJobName || '-'}</td>
+                    <td>${formatDate(r.volunteerShift?.startDate)} ${formatTime(r.volunteerShift?.startTime)}</td>
+                    <td><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></td>
+                </tr>`).join('');
+            document.getElementById('exportTotalCount').textContent = exportData.length;
+        }
+
+        function exportToCSV() {
+            const headers = ['Volunteer Name', 'Email', 'Phone', 'Job', 'Shift Date', 'Shift Time', 'Status'];
+            const rows = exportData.map(r => [
+                `${r.volunteer?.firstName} ${r.volunteer?.lastName}`,
+                r.volunteer?.email,
+                r.volunteer?.phoneNumber || '',
+                r.volunteerJob?.volunteerJobName || '',
+                r.volunteerShift?.startDate || '',
+                r.volunteerShift?.startTime || '',
+                r.status
+            ]);
+            const csv = [headers, ...rows].map(row => row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentCampaign.campaignName.replace(/[^a-z0-9]/gi, '_')}_volunteers.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function printExport() {
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html><head><title>${currentCampaign.campaignName} - Volunteers</title>
+                <style>body{font-family:Arial,sans-serif;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #ddd;padding:8px;text-align:left;}th{background:#f5f5f5;}</style>
+                </head><body>
+                <h1>${currentCampaign.campaignName}</h1>
+                <p>Total Registrations: ${exportData.length}</p>
+                <table><thead><tr><th>Volunteer</th><th>Email</th><th>Phone</th><th>Job</th><th>Shift</th><th>Status</th></tr></thead><tbody>
+                ${exportData.map(r => `<tr><td>${r.volunteer?.firstName} ${r.volunteer?.lastName}</td><td>${r.volunteer?.email}</td><td>${r.volunteer?.phoneNumber || '-'}</td><td>${r.volunteerJob?.volunteerJobName || '-'}</td><td>${formatDate(r.volunteerShift?.startDate)} ${formatTime(r.volunteerShift?.startTime)}</td><td>${r.status}</td></tr>`).join('')}
+                </tbody></table></body></html>`);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // ========== LOAD FUNCTIONS ==========
+        async function loadStats() {
+            try {
+                const [v, c, j, s, r] = await Promise.all([
+                    fetch('/api/volunteers').then(r => r.json()),
+                    fetch('/api/campaigns').then(r => r.json()),
+                    fetch('/api/jobs').then(r => r.json()),
+                    fetch('/api/shifts').then(r => r.json()),
+                    fetch('/api/registrations').then(r => r.json())
+                ]);
+                document.getElementById('totalVolunteers').textContent = v.data?.length || 0;
+                document.getElementById('totalCampaigns').textContent = c.data?.length || 0;
+                document.getElementById('totalJobs').textContent = j.data?.length || 0;
+                document.getElementById('totalShifts').textContent = s.data?.length || 0;
+                document.getElementById('totalRegistrations').textContent = r.data?.length || 0;
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        async function loadCampaigns() {
+            try {
+                const [campaignsRes, jobsRes] = await Promise.all([
+                    fetch('/api/campaigns').then(r => r.json()),
+                    fetch('/api/jobs').then(r => r.json())
+                ]);
+                campaignsData = campaignsRes.data || [];
+                jobCounts = {};
+                (jobsRes.data || []).forEach(j => { if (j.campaign?.id) jobCounts[j.campaign.id] = (jobCounts[j.campaign.id] || 0) + 1; });
+
+                // Populate registration filter
+                const select = document.getElementById('registrationCampaignFilter');
+                select.innerHTML = '<option value="">All Campaigns</option>' + campaignsData.map(c => `<option value="${c.id}">${c.campaignName}</option>`).join('');
+
+                filterCampaigns();
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        async function loadJobsForCampaign(campaignId) {
+            try {
+                const [jobsRes, shiftsRes] = await Promise.all([
+                    fetch(`/api/jobs/campaign/${campaignId}`).then(r => r.json()),
+                    fetch('/api/shifts').then(r => r.json())
+                ]);
+                jobsData = jobsRes.data || [];
+                shiftCounts = {};
+                (shiftsRes.data || []).forEach(s => { if (s.volunteerJob?.id) shiftCounts[s.volunteerJob.id] = (shiftCounts[s.volunteerJob.id] || 0) + 1; });
+                filterJobs();
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        async function loadShiftsForJob(jobId) {
+            try {
+                const [shiftsRes, regsRes] = await Promise.all([
+                    fetch(`/api/shifts/job/${jobId}`).then(r => r.json()),
+                    fetch('/api/registrations').then(r => r.json())
+                ]);
+                shiftsData = shiftsRes.data || [];
+                // Count registrations per shift
+                shiftRegistrationCounts = {};
+                (regsRes.data || []).forEach(r => {
+                    if (r.volunteerShift?.id) {
+                        shiftRegistrationCounts[r.volunteerShift.id] = (shiftRegistrationCounts[r.volunteerShift.id] || 0) + 1;
+                    }
+                });
+                filterShifts();
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        async function loadAllVolunteers() {
+            try {
+                const res = await fetch('/api/volunteers');
+                volunteersData = (await res.json()).data || [];
+                filterVolunteers();
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        async function loadRegistrations() {
+            try {
+                const res = await fetch('/api/registrations');
+                registrationsData = (await res.json()).data || [];
+                filterRegistrations();
+            } catch (e) { console.error('Error:', e); }
+        }
+
+        function formatDate(d) { if (!d) return '-'; const date = new Date(d); return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+        function formatTime(t) { if (!t) return ''; const [h, m] = t.split(':'); const hr = parseInt(h); return `${hr % 12 || 12}:${m} ${hr >= 12 ? 'PM' : 'AM'}`; }
+
+        document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', function (e) { if (e.target === this) this.classList.remove('active'); }));
+
+        // ========== EMAIL TEMPLATES ==========
+        let emailTemplatesData = [];
+        let availableVariables = [];
+        let quillEditor = null;
+        let currentEditingTemplateId = null;
+
+        async function loadEmailTemplates() {
+            try {
+                const [templatesRes, variablesRes] = await Promise.all([
+                    fetch('/api/email-templates'),
+                    fetch('/api/email-templates/variables')
+                ]);
+                const templatesResult = await templatesRes.json();
+                const variablesResult = await variablesRes.json();
+                
+                emailTemplatesData = templatesResult.data || [];
+                availableVariables = variablesResult.data || [];
+                
+                renderEmailTemplatesList();
+                populateVariableSelect();
+            } catch (e) {
+                console.error('Error loading email templates:', e);
+                showToast('Error loading email templates', 'error');
+            }
+        }
+
+        function renderEmailTemplatesList() {
+            const container = document.getElementById('emailTemplatesList');
+            
+            const templateTypes = [
+                { type: 'REGISTRATION_CONFIRMATION', icon: 'fa-user-check', color: '#4caf50' },
+                { type: 'REMINDER_1_DAY', icon: 'fa-bell', color: '#ff9800' },
+                { type: 'THANK_YOU', icon: 'fa-heart', color: '#e91e63' }
+            ];
+            
+            container.innerHTML = templateTypes.map(tt => {
+                const template = emailTemplatesData.find(t => t.templateType === tt.type);
+                const isConfigured = !!template;
+                const isEnabled = template?.enabled ?? false;
+                
+                return `
+                    <div class="email-template-card" style="background: white; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <div style="width: 50px; height: 50px; border-radius: 10px; background: ${tt.color}20; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas ${tt.icon}" style="font-size: 1.5rem; color: ${tt.color};"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0 0 4px; font-size: 1.1rem;">${getTemplateDisplayName(tt.type)}</h3>
+                                <p style="margin: 0; color: #666; font-size: 0.9rem;">${getTemplateDescription(tt.type)}</p>
+                                ${isConfigured ? `
+                                    <div style="margin-top: 8px;">
+                                        <span class="status-badge ${isEnabled ? 'status-confirmed' : 'status-cancelled'}" style="font-size: 0.75rem;">
+                                            ${isEnabled ? 'Enabled' : 'Disabled'}
+                                        </span>
+                                    </div>
+                                ` : `
+                                    <div style="margin-top: 8px;">
+                                        <span class="status-badge status-pending" style="font-size: 0.75rem;">Not Configured</span>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            ${isConfigured ? `
+                                <button class="btn btn-outline btn-small" onclick="toggleEmailTemplate(${template.id})" title="${isEnabled ? 'Disable' : 'Enable'}">
+                                    <i class="fas fa-${isEnabled ? 'toggle-on' : 'toggle-off'}"></i>
+                                </button>
+                                <button class="btn btn-primary btn-small" onclick="editEmailTemplate(${template.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            ` : `
+                                <button class="btn btn-primary btn-small" onclick="createEmailTemplate('${tt.type}')">
+                                    <i class="fas fa-plus"></i> Configure
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getTemplateDisplayName(type) {
+            const names = {
+                'REGISTRATION_CONFIRMATION': 'Registration Confirmation',
+                'REMINDER_1_DAY': '1-Day Reminder',
+                'THANK_YOU': 'Thank You Email'
+            };
+            return names[type] || type;
+        }
+
+        function getTemplateDescription(type) {
+            const descriptions = {
+                'REGISTRATION_CONFIRMATION': 'Sent when a volunteer registers for a shift',
+                'REMINDER_1_DAY': 'Sent 1 day before the scheduled shift',
+                'THANK_YOU': 'Sent after the event is completed'
+            };
+            return descriptions[type] || '';
+        }
+
+        function populateVariableSelect() {
+            const select = document.getElementById('variableSelect');
+            select.innerHTML = '<option value="">-- Select a variable to insert --</option>' +
+                availableVariables.map(v => `<option value="${v.variable}">${v.variable} - ${v.description}</option>`).join('');
+        }
+
+        function initQuillEditor() {
+            if (quillEditor) {
+                quillEditor = null;
+            }
+            document.getElementById('emailEditor').innerHTML = '';
+            quillEditor = new Quill('#emailEditor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['link'],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Compose your email template...'
+            });
+        }
+
+        function insertVariable() {
+            const select = document.getElementById('variableSelect');
+            const variable = select.value;
+            if (variable && quillEditor) {
+                const range = quillEditor.getSelection(true);
+                quillEditor.insertText(range.index, variable);
+                quillEditor.setSelection(range.index + variable.length);
+            }
+            select.value = '';
+        }
+
+        function createEmailTemplate(type) {
+            currentEditingTemplateId = null;
+            document.getElementById('emailTemplateId').value = '';
+            document.getElementById('emailTemplateType').value = getTemplateDisplayName(type);
+            document.getElementById('emailTemplateSubject').value = getDefaultSubject(type);
+            document.getElementById('emailTemplateEnabled').checked = true;
+            
+            initQuillEditor();
+            quillEditor.root.innerHTML = getDefaultBody(type);
+            
+            document.getElementById('emailTemplateModalTitle').textContent = 'Create Email Template';
+            openModal('emailTemplateModal');
+        }
+
+        function editEmailTemplate(id) {
+            const template = emailTemplatesData.find(t => t.id === id);
+            if (!template) return;
+            
+            currentEditingTemplateId = id;
+            document.getElementById('emailTemplateId').value = id;
+            document.getElementById('emailTemplateType').value = getTemplateDisplayName(template.templateType);
+            document.getElementById('emailTemplateSubject').value = template.subject || '';
+            document.getElementById('emailTemplateEnabled').checked = template.enabled;
+            
+            initQuillEditor();
+            quillEditor.root.innerHTML = template.bodyHtml || '';
+            
+            document.getElementById('emailTemplateModalTitle').textContent = 'Edit Email Template';
+            openModal('emailTemplateModal');
+        }
+
+        async function saveEmailTemplate() {
+            const id = document.getElementById('emailTemplateId').value;
+            const typeDisplay = document.getElementById('emailTemplateType').value;
+            const subject = document.getElementById('emailTemplateSubject').value;
+            const bodyHtml = quillEditor.root.innerHTML;
+            const enabled = document.getElementById('emailTemplateEnabled').checked;
+            
+            if (!subject.trim()) {
+                showToast('Subject line is required', 'error');
+                return;
+            }
+            
+            const templateType = Object.keys({
+                'Registration Confirmation': 'REGISTRATION_CONFIRMATION',
+                '1-Day Reminder': 'REMINDER_1_DAY',
+                'Thank You Email': 'THANK_YOU'
+            }).find(k => k === typeDisplay) ? {
+                'Registration Confirmation': 'REGISTRATION_CONFIRMATION',
+                '1-Day Reminder': 'REMINDER_1_DAY',
+                'Thank You Email': 'THANK_YOU'
+            }[typeDisplay] : typeDisplay;
+            
+            const data = {
+                templateType: templateType,
+                subject: subject,
+                bodyHtml: bodyHtml,
+                enabled: enabled
+            };
+            
+            try {
+                const url = id ? `/api/email-templates/${id}` : '/api/email-templates';
+                const method = id ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await res.json();
+                if (result.success) {
+                    showToast(result.message || 'Template saved successfully', 'success');
+                    closeModal('emailTemplateModal');
+                    loadEmailTemplates();
+                } else {
+                    showToast(result.message || 'Error saving template', 'error');
+                }
+            } catch (e) {
+                console.error('Error saving template:', e);
+                showToast('Error saving template', 'error');
+            }
+        }
+
+        async function toggleEmailTemplate(id) {
+            try {
+                const res = await fetch(`/api/email-templates/${id}/toggle`, { method: 'PUT' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast(result.message, 'success');
+                    loadEmailTemplates();
+                } else {
+                    showToast(result.message || 'Error toggling template', 'error');
+                }
+            } catch (e) {
+                showToast('Error toggling template', 'error');
+            }
+        }
+
+        function openTestEmailModal() {
+            if (!currentEditingTemplateId) {
+                showToast('Please save the template first before sending a test', 'error');
+                return;
+            }
+            openModal('testEmailModal');
+        }
+
+        async function sendTestEmail() {
+            const email = document.getElementById('testEmailAddress').value;
+            if (!email) {
+                showToast('Please enter an email address', 'error');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/email-templates/${currentEditingTemplateId}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('Test email sent successfully!', 'success');
+                    closeModal('testEmailModal');
+                } else {
+                    showToast(result.message || 'Failed to send test email', 'error');
+                }
+            } catch (e) {
+                showToast('Error sending test email', 'error');
+            }
+        }
+
+        async function previewEmailTemplate() {
+            const subject = document.getElementById('emailTemplateSubject').value;
+            const bodyHtml = quillEditor.root.innerHTML;
+            
+            // Process sample variables for preview
+            const sampleVars = {
+                '{{volunteerName}}': 'John Doe',
+                '{{volunteerFirstName}}': 'John',
+                '{{volunteerLastName}}': 'Doe',
+                '{{volunteerEmail}}': 'john.doe@example.com',
+                '{{campaignName}}': 'Spring Volunteer Campaign 2026',
+                '{{jobName}}': 'Community Garden Helper',
+                '{{shiftDate}}': 'Saturday, March 15, 2026',
+                '{{shiftTime}}': '9:00 AM',
+                '{{shiftLocation}}': '123 Main Street, Springfield, CA 90210',
+                '{{checkInCode}}': 'ABC123',
+                '{{hoursWorked}}': '4.0',
+                '{{organizationName}}': 'VolunteerHub',
+                '{{shiftsList}}': '<li><strong>Community Garden Helper</strong> - Saturday, March 15, 2026 at 9:00 AM (Check-in Code: <strong>ABC123</strong>)</li>'
+            };
+            
+            let previewSubject = subject;
+            let previewBody = bodyHtml;
+            
+            for (const [key, value] of Object.entries(sampleVars)) {
+                previewSubject = previewSubject.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), value);
+                previewBody = previewBody.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), value);
+            }
+            
+            document.getElementById('previewSubject').textContent = previewSubject;
+            document.getElementById('emailPreviewContent').innerHTML = previewBody;
+            openModal('emailPreviewModal');
+        }
+
+        function getDefaultSubject(type) {
+            const subjects = {
+                'REGISTRATION_CONFIRMATION': 'Welcome {{volunteerFirstName}}! Your Registration is Confirmed',
+                'REMINDER_1_DAY': 'Reminder: Your Volunteer Shift is Tomorrow!',
+                'THANK_YOU': 'Thank You for Volunteering, {{volunteerFirstName}}!'
+            };
+            return subjects[type] || '';
+        }
+
+        function getDefaultBody(type) {
+            const bodies = {
+                'REGISTRATION_CONFIRMATION': `
+                    <h2>Welcome, {{volunteerFirstName}}!</h2>
+                    <p>Thank you for registering to volunteer with <strong>{{organizationName}}</strong>!</p>
+                    <p>Here are your registration details:</p>
+                    <ul>{{shiftsList}}</ul>
+                    <p><strong>What to bring:</strong></p>
+                    <ul>
+                        <li>Your check-in code (shown above)</li>
+                        <li>A valid ID</li>
+                        <li>Comfortable clothing appropriate for the activity</li>
+                    </ul>
+                    <p>If you have any questions, please don't hesitate to contact us.</p>
+                    <p>We look forward to seeing you!</p>
+                    <p>Best regards,<br>The {{organizationName}} Team</p>
+                `,
+                'REMINDER_1_DAY': `
+                    <h2>Hi {{volunteerFirstName}}!</h2>
+                    <p>This is a friendly reminder that you're scheduled to volunteer <strong>tomorrow</strong>!</p>
+                    <p><strong>Details:</strong></p>
+                    <ul>
+                        <li><strong>Campaign:</strong> {{campaignName}}</li>
+                        <li><strong>Activity:</strong> {{jobName}}</li>
+                        <li><strong>Date:</strong> {{shiftDate}}</li>
+                        <li><strong>Time:</strong> {{shiftTime}}</li>
+                        <li><strong>Location:</strong> {{shiftLocation}}</li>
+                    </ul>
+                    <p><strong>Your Check-in Code:</strong> <span style="font-size: 1.2em; font-weight: bold; color: #e91e63;">{{checkInCode}}</span></p>
+                    <p>Please arrive 10-15 minutes early to check in.</p>
+                    <p>See you tomorrow!</p>
+                    <p>Best regards,<br>The {{organizationName}} Team</p>
+                `,
+                'THANK_YOU': `
+                    <h2>Thank You, {{volunteerFirstName}}!</h2>
+                    <p>We wanted to take a moment to express our sincere gratitude for your time and effort volunteering with <strong>{{organizationName}}</strong>.</p>
+                    <p>Your contribution to <strong>{{jobName}}</strong> on <strong>{{shiftDate}}</strong> made a real difference in our community.</p>
+                    <p>We hope you had a great experience and we'd love to see you again at future events!</p>
+                    <p>Thank you for being part of our volunteer family.</p>
+                    <p>With gratitude,<br>The {{organizationName}} Team</p>
+                `
+            };
+            return bodies[type] || '';
+        }
+
+        // Load email templates when tab is shown
+        const originalShowTab = showTab;
+        showTab = function(tabName, event) {
+            originalShowTab(tabName, event);
+            if (tabName === 'emailTemplates') {
+                loadEmailTemplates();
+            }
+            if (tabName === 'users') {
+                loadUsers();
+            }
+        };
+
+        // ========== USER MANAGEMENT ==========
+        let usersData = [];
+        let filteredUsers = [];
+        let userDeleteId = null;
+
+        async function loadUsers() {
+            try {
+                const res = await fetch(`/api/users?page=0&size=10`);
+                const result = await res.json();
+                if (result.success) {
+                    usersData = result.data.users;
+                    filteredUsers = usersData;
+                    renderUsersTable();
+                    renderUserPagination(result.data);
+                } else {
+                    showToast('Error loading users', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading users:', e);
+                showToast('Error loading users', 'error');
+            }
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('usersTableBody');
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: #999;">No users found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredUsers.map(user => {
+                const status = user.active ? '<span class="status-badge status-confirmed">Active</span>' : '<span class="status-badge status-cancelled">Inactive</span>';
+                const createdDate = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A';
+                const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(user.username)}</strong></td>
+                        <td><span style="background: ${user.role === 'ADMIN' ? '#e91e63' : '#2196f3'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">${user.role}</span></td>
+                        <td>${status}</td>
+                        <td>${createdDate}</td>
+                        <td>${lastLogin}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-small btn-outline" onclick="openUserModal(${user.id})" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-small btn-outline" onclick="toggleUserStatus(${user.id}, ${user.active})" title="${user.active ? 'Deactivate' : 'Activate'}">
+                                    <i class="fas fa-${user.active ? 'lock' : 'unlock'}"></i>
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="openDeleteUserModal(${user.id}, '${escapeHtml(user.username)}')" title="Delete">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderUserPagination(data) {
+            const container = document.getElementById('userPagination');
+            const totalPages = data.totalPages;
+            const currentPage = data.currentPage;
+            const totalElements = data.totalElements;
+
+            if (totalElements === 0) {
+                container.innerHTML = '<div class="pagination-info">No users to display</div>';
+                return;
+            }
+
+            const start = currentPage * 10 + 1;
+            const end = Math.min((currentPage + 1) * 10, totalElements);
+
+            let pagesHtml = '';
+            for (let i = 0; i < totalPages && i < 5; i++) {
+                pagesHtml += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="loadUserPage(${i})">${i + 1}</button>`;
+            }
+
+            container.innerHTML = `
+                <div class="pagination-info">Showing ${start} to ${end} of ${totalElements} users</div>
+                <div class="pagination-controls">
+                    ${pagesHtml}
+                    ${totalPages > 5 ? '<span style="padding: 0 8px;">...</span>' : ''}
+                </div>
+            `;
+        }
+
+        async function loadUserPage(page) {
+            try {
+                const res = await fetch(`/api/users?page=${page}&size=10`);
+                const result = await res.json();
+                if (result.success) {
+                    usersData = result.data.users;
+                    filteredUsers = usersData;
+                    renderUsersTable();
+                    renderUserPagination(result.data);
+                }
+            } catch (e) {
+                showToast('Error loading users', 'error');
+            }
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const roleFilter = document.getElementById('userRoleFilter').value;
+            const statusFilter = document.getElementById('userStatusFilter').value;
+
+            filteredUsers = usersData.filter(user => {
+                const matchesSearch = user.username.toLowerCase().includes(search);
+                const matchesRole = !roleFilter || user.role === roleFilter;
+                const matchesStatus = !statusFilter || (statusFilter === 'active' ? user.active : !user.active);
+                return matchesSearch && matchesRole && matchesStatus;
+            });
+
+            renderUsersTable();
+        }
+
+        function clearUserFilters() {
+            document.getElementById('userSearch').value = '';
+            document.getElementById('userRoleFilter').value = '';
+            document.getElementById('userStatusFilter').value = '';
+            filteredUsers = usersData;
+            renderUsersTable();
+        }
+
+        function openUserModal(id = null) {
+            document.getElementById('userId').value = '';
+            document.getElementById('userUsername').value = '';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userRole').value = '';
+            document.getElementById('userActive').checked = true;
+            document.getElementById('usernameError').style.display = 'none';
+            document.getElementById('passwordLabel').innerHTML = 'Password <span class="required">*</span>';
+            document.getElementById('userPassword').required = true;
+            document.getElementById('userModalTitle').textContent = 'Create User';
+
+            if (id) {
+                fetchUserDetails(id);
+            } else {
+                openModal('userModal');
+            }
+        }
+
+        async function fetchUserDetails(id) {
+            try {
+                const res = await fetch(`/api/users/${id}`);
+                const result = await res.json();
+                if (result.success) {
+                    const user = result.data;
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('userUsername').value = user.username;
+                    document.getElementById('userPassword').value = '';
+                    document.getElementById('userRole').value = user.role;
+                    document.getElementById('userActive').checked = user.active;
+                    document.getElementById('passwordLabel').innerHTML = 'Password (leave blank to keep current)';
+                    document.getElementById('userPassword').required = false;
+                    document.getElementById('userModalTitle').textContent = 'Edit User';
+                    openModal('userModal');
+                } else {
+                    showToast('Error loading user details', 'error');
+                }
+            } catch (e) {
+                showToast('Error loading user details', 'error');
+            }
+        }
+
+        async function saveUser(event) {
+            event.preventDefault();
+            const id = document.getElementById('userId').value;
+            const username = document.getElementById('userUsername').value.trim();
+            const password = document.getElementById('userPassword').value.trim();
+            const role = document.getElementById('userRole').value;
+            const active = document.getElementById('userActive').checked;
+
+            // Validate
+            if (!username) {
+                showToast('Username is required', 'error');
+                return;
+            }
+
+            if (!id && !password) {
+                showToast('Password is required for new users', 'error');
+                return;
+            }
+
+            if (password && password.length < 8) {
+                showToast('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            if (!role) {
+                showToast('Role is required', 'error');
+                return;
+            }
+
+            const data = {
+                username: username,
+                role: role,
+                active: active
+            };
+
+            if (password) {
+                data.password = password;
+            }
+
+            try {
+                const url = id ? `/api/users/${id}` : '/api/users';
+                const method = id ? 'PUT' : 'POST';
+
+                console.log('Saving user with URL:', url, 'Method:', method, 'Data:', data);
+
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                console.log('Response status:', res.status);
+                const result = await res.json();
+                console.log('Response result:', result);
+
+                if (res.ok && (result.success || result.data)) {
+                    const isNewUser = !id;
+                    const message = isNewUser ? '✓ User created successfully' : '✓ User updated successfully';
+                    console.log('Showing toast:', message);
+                    showToast(message, 'success');
+
+                    console.log('Closing modal');
+                    closeModal('userModal');
+
+                    console.log('Refreshing users list');
+                    setTimeout(() => {
+                        loadUsers();
+                    }, 500);
+                } else {
+                    showToast(result.message || 'Error saving user', 'error');
+                }
+            } catch (e) {
+                console.error('Error saving user:', e);
+                showToast('Error saving user: ' + e.message, 'error');
+            }
+        }
+
+        function openDeleteUserModal(id, username) {
+            userDeleteId = id;
+            document.getElementById('deleteUserUsername').textContent = username;
+            openModal('deleteUserModal');
+        }
+
+        async function confirmDeleteUser() {
+            if (!userDeleteId) return;
+
+            try {
+                const res = await fetch(`/api/users/${userDeleteId}`, { method: 'DELETE' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast('User deleted successfully', 'success');
+                    closeModal('deleteUserModal');
+                    loadUsers();
+                } else {
+                    showToast(result.message || 'Error deleting user', 'error');
+                }
+            } catch (e) {
+                console.error('Error deleting user:', e);
+                showToast('Error deleting user', 'error');
+            }
+        }
+
+        async function toggleUserStatus(id, currentActive) {
+            try {
+                const res = await fetch(`/api/users/${id}/toggle-active`, { method: 'POST' });
+                const result = await res.json();
+                if (result.success) {
+                    showToast(`User ${currentActive ? 'deactivated' : 'activated'} successfully`, 'success');
+                    loadUsers();
+                } else {
+                    showToast(result.message || 'Error updating user status', 'error');
+                }
+            } catch (e) {
+                console.error('Error toggling user status:', e);
+                showToast('Error updating user status', 'error');
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Helper function for toast notifications (if not already defined in main.js)
+        function showToast(message, type = 'info') {
+            // Create a toast notification
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196F3'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 4px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                z-index: 10000;
+                font-size: 14px;
+                animation: slideIn 0.3s ease-in-out;
+            `;
+            document.body.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease-in-out';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

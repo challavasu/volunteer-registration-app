@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Signup - VolunteerHub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/styles.css?v=13" rel="stylesheet">
+</head>
+
+<body class="signup-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <span>VolunteerHub</span>
+            </a>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/">Home</a></li>
+                <li><a href="/my-registrations">My Registrations</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Campaign Header (Compact) -->
+    <section class="campaign-banner compact" id="campaignBanner">
+        <div class="container">
+            <div class="campaign-header-row">
+                <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+                <div class="campaign-info">
+                    <h1 id="campaignTitle">Loading...</h1>
+                    <span class="campaign-dates" id="campaignDates"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Signup Form -->
+    <section class="signup-section">
+        <div class="container">
+            <form id="volunteerSignupForm" class="signup-form">
+                <!-- Volunteer Information -->
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <i class="fas fa-user"></i>
+                        <h2>Volunteer Information</h2>
+                    </div>
+                    <p class="form-note"><span class="required-star">*</span> Minimum Age limit to volunteer - 12 &
+                        Above.</p>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name <span class="required-star">*</span></label>
+                            <input type="text" id="firstName" class="form-input" required
+                                placeholder="(Required Field)">
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name <span class="required-star">*</span></label>
+                            <input type="text" id="lastName" class="form-input" required placeholder="(Required Field)">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email <span class="required-star">*</span></label>
+                            <input type="email" id="email" class="form-input" required
+                                placeholder="(Required Field, e.g. john.doe@email.com)">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number <span class="required-star">*</span></label>
+                            <input type="tel" id="phoneNumber" class="form-input" required
+                                placeholder="(Required Field, e.g. (408) 456-6470)">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="organization">Organization</label>
+                            <input type="text" id="organization" class="form-input"
+                                placeholder="(e.g. Microsoft, Boeing, Amazon)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Select Services/Jobs -->
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <i class="fas fa-tasks"></i>
+                        <h2>Select your service(s)</h2>
+                    </div>
+                    <p class="form-note">Select one or more volunteer services you'd like to help with.</p>
+
+                    <div class="services-checkbox-grid" id="servicesGrid">
+                        <!-- Services will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Shift Selection (shows after selecting services) -->
+                <div class="form-card" id="shiftsCard" style="display: none;">
+                    <div class="form-card-header">
+                        <i class="fas fa-clock"></i>
+                        <h2>Select your shift(s)</h2>
+                    </div>
+                    <p class="form-note">Choose available time slots for your selected services.</p>
+
+                    <div id="shiftsContainer">
+                        <!-- Shifts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="form-card terms-card">
+                    <div class="form-card-header">
+                        <i class="fas fa-file-contract"></i>
+                        <h2>Terms and Conditions</h2>
+                    </div>
+                    <div class="terms-content">
+                        <p>I agree to volunteer at the above event organized by Vedic Cultural Center (VCC), a 501(c)
+                            (3) non-profit organization (EIN 04827986). Volunteer Rules and Regulations Information:
+                            Volunteer agrees to indemnify, defend and hold harmless VCC and its agents, employees,
+                            officers, directors, representatives and affiliates, including the Committee against all
+                            loss, costs, damages, liabilities, actions, causes of action, demands, claims or injury of
+                            any nature whatsoever brought or asserted by any person and in any way connected with,
+                            arising out of or claimed to be arising out of, volunteers booth or any space used by
+                            volunteers, or actions by sponsor or exhibitor and its agents or employees, or guests. This
+                            agreement extends to all claims of injury or damage, whether direct or indirect, incidental
+                            or consequential, regardless of whether they are the result of the negligence of VCC or the
+                            venue agents. This agreement is to indemnify, defend and hold harmless also includes without
+                            limitation: (1) all claims, demands and actions arising out of or in any way related to any
+                            claim, copyright, trademark or patent rights or laws, and (2) all claims demand and actions
+                            related to any theft or claim of theft of any personal property.</p>
+                    </div>
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <label for="agreeTerms">I agree to the Terms and Conditions of the service. <span
+                                class="required-star">*</span></label>
+                    </div>
+                    <p class="form-note">Please click only once</p>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        <i class="fas fa-paper-plane"></i> Submit Registration
+                    </button>
+                    <button type="reset" class="btn btn-outline btn-large" onclick="clearForm()">
+                        <i class="fas fa-undo"></i> Clear
+                    </button>
+                </div>
+            </form>
+
+            <!-- Success Message -->
+            <div id="successMessage" class="success-card" style="display: none;">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Registration Successful!</h2>
+                <p>Thank you for volunteering! You will receive a confirmation email shortly.</p>
+                <div class="registration-summary" id="registrationSummary">
+                    <!-- Summary will be shown here -->
+                </div>
+                <div class="success-actions">
+                    <a href="/" class="btn btn-primary">Back to Home</a>
+                    <a href="/my-registrations" class="btn btn-outline">View My Registrations</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 VolunteerHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Toggle full jobs section
+        function toggleFullJobsSection() {
+            const section = document.getElementById('fullJobsSection');
+            if (section) {
+                section.classList.toggle('collapsed');
+            }
+        }
+
+        let campaignId = null;
+        let campaignData = null;
+        let jobsData = [];
+        let selectedJobs = new Set();
+        let selectedShifts = new Set();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            campaignId = urlParams.get('campaignId');
+
+            if (!campaignId) {
+                window.location.href = '/';
+                return;
+            }
+
+            loadCampaignData();
+            loadJobs();
+            setupEventListeners();
+            
+            // Check for saved email
+            const savedEmail = localStorage.getItem('volunteerEmail');
+            if (savedEmail) {
+                document.getElementById('email').value = savedEmail;
+            }
+        });
+
+        function setupEventListeners() {
+            document.getElementById('volunteerSignupForm').addEventListener('submit', handleSubmit);
+        }
+
+        async function showDuplicateError(duplicateShiftIds, email) {
+            // Get info about the duplicate shifts
+            const shiftNames = [];
+            for (const shiftId of duplicateShiftIds) {
+                const shiftEl = document.querySelector(`[data-shift-id="${shiftId}"]`);
+                if (shiftEl) {
+                    const dateEl = shiftEl.querySelector('.shift-date');
+                    const timeEl = shiftEl.querySelector('.shift-time');
+                    shiftNames.push(`${dateEl?.textContent || ''} ${timeEl?.textContent || ''}`);
+                }
+            }
+
+            // Create and show error modal
+            const modalHtml = `
+                <div class="modal-overlay" id="duplicateErrorModal" style="display: flex;">
+                    <div class="modal">
+                        <div class="modal-header" style="background: #ffebee; border-bottom: 2px solid #ef5350;">
+                            <h2 style="color: #c62828;"><i class="fas fa-exclamation-triangle"></i> Already Registered</h2>
+                            <button class="modal-close" onclick="closeDuplicateModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <p style="margin-bottom: 16px;">You are already registered for the following shift(s):</p>
+                            <ul style="margin-bottom: 20px; padding-left: 20px;">
+                                ${shiftNames.map(name => `<li style="margin-bottom: 8px;"><strong>${name}</strong></li>`).join('')}
+                            </ul>
+                            <p style="margin-bottom: 20px; color: #666;">What would you like to do?</p>
+                            
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <button class="btn btn-primary" onclick="deselectDuplicateShifts([${duplicateShiftIds.join(',')}])" style="width: 100%;">
+                                    <i class="fas fa-exchange-alt"></i> Select Different Shifts
+                                </button>
+                                <button class="btn btn-outline" onclick="cancelAndReregister([${duplicateShiftIds.join(',')}], '${email}')" style="width: 100%; color: #ff9800; border-color: #ff9800;">
+                                    <i class="fas fa-undo"></i> Cancel Existing & Keep New Selection
+                                </button>
+                                <button class="btn btn-outline" onclick="closeDuplicateModal()" style="width: 100%;">
+                                    <i class="fas fa-times"></i> Go Back
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeDuplicateModal() {
+            const modal = document.getElementById('duplicateErrorModal');
+            if (modal) modal.remove();
+        }
+
+        function deselectDuplicateShifts(shiftIds) {
+            // Deselect the duplicate shifts
+            for (const shiftId of shiftIds) {
+                selectedShifts.delete(shiftId);
+                const shiftEl = document.querySelector(`[data-shift-id="${shiftId}"]`);
+                if (shiftEl) {
+                    shiftEl.classList.remove('selected');
+                    const checkbox = shiftEl.querySelector('input[type="checkbox"]');
+                    if (checkbox) checkbox.checked = false;
+                }
+            }
+            closeDuplicateModal();
+            showToast('Shifts deselected. Please select different shifts and try again.', 'info');
+            
+            // Scroll to shifts section
+            document.getElementById('shiftsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        async function cancelAndReregister(shiftIds, email) {
+            closeDuplicateModal();
+            showToast('Cancelling existing registrations...', 'info');
+            
+            try {
+                // Get existing registrations for this email
+                const response = await fetch(`/api/registrations/volunteer/email/${encodeURIComponent(email)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    // Find registrations for the duplicate shifts
+                    for (const reg of result.data) {
+                        if (shiftIds.includes(reg.volunteerShift?.id) && reg.status !== 'CANCELLED') {
+                            // Cancel this registration
+                            await fetch(`/api/registrations/${reg.id}/cancel`, { method: 'PUT' });
+                        }
+                    }
+                    
+                    showToast('Existing registrations cancelled. Submitting new registration...', 'success');
+                    
+                    // Re-submit the form
+                    setTimeout(() => {
+                        document.getElementById('volunteerSignupForm').dispatchEvent(new Event('submit'));
+                    }, 500);
+                }
+            } catch (error) {
+                showToast('Error cancelling registrations. Please try again.', 'error');
+            }
+        }
+
+        async function loadCampaignData() {
+            try {
+                const response = await fetch(`/api/campaigns/${campaignId}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    campaignData = result.data;
+                    document.getElementById('campaignTitle').textContent = campaignData.campaignName;
+                    document.getElementById('campaignDates').textContent =
+                        `${formatDate(campaignData.startDate)} - ${formatDate(campaignData.endDate)}`;
+                    document.title = `Volunteer Signup - ${campaignData.campaignName}`;
+                } else {
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Error loading campaign:', error);
+                window.location.href = '/';
+            }
+        }
+
+        async function loadJobs() {
+            try {
+                const response = await fetch(`/api/jobs/campaign/${campaignId}/available`);
+                const result = await response.json();
+
+                const jobs = result.data || [];
+                
+                // Load shift availability for each job
+                for (const job of jobs) {
+                    try {
+                        const shiftRes = await fetch(`/api/shifts/job/${job.id}/available`);
+                        const shiftResult = await shiftRes.json();
+                        const shifts = shiftResult.data || [];
+                        job.shifts = shifts;
+                        job.totalShifts = shifts.length;
+                        job.availableShifts = shifts.filter(s => s.hasAvailableSlots || s.availableSlots > 0).length;
+                        // Calculate total available slots across all shifts
+                        job.totalSlots = shifts.reduce((sum, s) => sum + (s.availableSlots || 0), 0);
+                        // Job is unavailable if it has no available shifts (either no shifts at all, or all full)
+                        job.hasNoShiftsAvailable = job.availableShifts === 0;
+                    } catch (e) {
+                        job.shifts = [];
+                        job.totalSlots = 0;
+                        job.hasNoShiftsAvailable = true;
+                    }
+                }
+                
+                jobsData = jobs;
+                renderJobsGrid();
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+            }
+        }
+
+        function renderJobsGrid() {
+            const grid = document.getElementById('servicesGrid');
+
+            if (jobsData.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-services">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No volunteer services available for this campaign at this time.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Separate available jobs from jobs with no shifts available
+            let availableJobs = jobsData.filter(job => !job.hasNoShiftsAvailable);
+            let unavailableJobs = jobsData.filter(job => job.hasNoShiftsAvailable);
+
+            // Sort both by name (ascending)
+            availableJobs.sort((a, b) => a.volunteerJobName.localeCompare(b.volunteerJobName));
+            unavailableJobs.sort((a, b) => a.volunteerJobName.localeCompare(b.volunteerJobName));
+
+            let html = '';
+
+            // Helper function to format address - show only city/state or just city
+            function getShortAddress(job) {
+                const parts = [];
+                if (job.locationCity && job.locationCity.trim()) parts.push(job.locationCity);
+                if (job.locationState && job.locationState.trim()) parts.push(job.locationState);
+                return parts.length > 0 ? parts.join(', ') : '-';
+            }
+
+            // Helper function to get date range from shifts
+            function getDateRange(job) {
+                if (!job.shifts || job.shifts.length === 0) return '';
+                const dates = job.shifts.map(s => new Date(s.startDate)).sort((a, b) => a - b);
+                if (dates.length === 0) return '';
+                const minDate = dates[0];
+                const maxDate = dates[dates.length - 1];
+                const minDay = minDate.getDate();
+                const maxDay = maxDate.getDate();
+                const month = minDate.toLocaleDateString('en-US', { month: 'short' });
+                if (minDay === maxDay) {
+                    return `${month} ${minDay}`;
+                }
+                return `${month} ${minDay}-${maxDay}`;
+            }
+
+            // Available jobs section
+            if (availableJobs.length > 0) {
+                html += availableJobs.map(job => `
+                    <label class="service-checkbox-item ${selectedJobs.has(job.id) ? 'selected' : ''}" data-job-id="${job.id}">
+                        <input type="checkbox" name="services" value="${job.id}"
+                               ${selectedJobs.has(job.id) ? 'checked' : ''}
+                               onchange="toggleJob(${job.id}, this.checked)">
+                        <span class="checkbox-indicator">
+                            <i class="fas fa-check"></i>
+                        </span>
+                        <div class="service-info">
+                            <span class="service-name">${job.volunteerJobName}</span>
+                            <span class="service-location"><i class="fas fa-map-marker-alt"></i> ${getShortAddress(job)}</span>
+                        </div>
+                        <div class="service-right-section">
+                            <span class="service-slots">${job.availableShifts} shifts<br>${job.totalSlots} slots</span>
+                            <span class="service-dates"><i class="fas fa-calendar"></i> ${getDateRange(job)}</span>
+                        </div>
+                    </label>
+                `).join('');
+            } else {
+                html += `
+                    <div class="no-services">
+                        <i class="fas fa-info-circle"></i>
+                        <p>All volunteer services are currently full.</p>
+                    </div>
+                `;
+            }
+
+            // Unavailable jobs section (collapsible, collapsed by default)
+            if (unavailableJobs.length > 0) {
+                html += `
+                    <div class="full-jobs-section collapsed" id="fullJobsSection">
+                        <div class="full-jobs-header" onclick="toggleFullJobsSection()">
+                            <i class="fas fa-chevron-right toggle-icon"></i>
+                            <i class="fas fa-ban"></i>
+                            <span>Services with No Shifts Available (${unavailableJobs.length})</span>
+                        </div>
+                        <div class="full-jobs-content">
+                            ${unavailableJobs.map(job => `
+                                <div class="service-checkbox-item disabled full-job" data-job-id="${job.id}">
+                                    <span class="checkbox-indicator disabled-indicator">
+                                        <i class="fas fa-ban"></i>
+                                    </span>
+                                    <div class="service-info">
+                                        <span class="service-name">${job.volunteerJobName}</span>
+                                        <span class="service-location"><i class="fas fa-map-marker-alt"></i> ${getShortAddress(job)}</span>
+                                    </div>
+                                    <div class="service-right-section">
+                                        <span class="service-full-badge">0 shifts</span>
+                                        <span class="service-dates"><i class="fas fa-calendar"></i> ${getDateRange(job)}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        async function toggleJob(jobId, isSelected) {
+            if (isSelected) {
+                selectedJobs.add(jobId);
+            } else {
+                selectedJobs.delete(jobId);
+                // Remove shifts for this job
+                const job = jobsData.find(j => j.id === jobId);
+                if (job && job.shifts) {
+                    job.shifts.forEach(shift => selectedShifts.delete(shift.id));
+                }
+            }
+
+            // Update visual state
+            const item = document.querySelector(`[data-job-id="${jobId}"]`);
+            if (item) {
+                item.classList.toggle('selected', isSelected);
+            }
+
+            // Load and show shifts if any jobs selected
+            if (selectedJobs.size > 0) {
+                await loadShiftsForSelectedJobs();
+                document.getElementById('shiftsCard').style.display = 'block';
+            } else {
+                document.getElementById('shiftsCard').style.display = 'none';
+            }
+        }
+
+        async function loadShiftsForSelectedJobs() {
+            const container = document.getElementById('shiftsContainer');
+            container.innerHTML = '';
+
+            for (const jobId of selectedJobs) {
+                const job = jobsData.find(j => j.id === jobId);
+                if (!job) continue;
+
+                try {
+                    const response = await fetch(`/api/shifts/job/${jobId}/available`);
+                    const result = await response.json();
+                    const shifts = result.data || [];
+
+                    if (shifts.length > 0) {
+                        const jobShiftsHtml = `
+                            <div class="job-shifts-section">
+                                <h3 class="job-shifts-title">
+                                    <i class="fas fa-briefcase"></i> ${job.volunteerJobName}
+                                    ${job.locationCity ? `<span class="location-tag">@ ${job.locationCity}</span>` : ''}
+                                </h3>
+                                <div class="shifts-grid">
+                                    ${shifts.map(shift => {
+                                        const hasSlots = shift.hasAvailableSlots === true || shift.availableSlots > 0;
+                                        return `
+                                        <label class="shift-checkbox-item ${selectedShifts.has(shift.id) ? 'selected' : ''} ${!hasSlots ? 'disabled' : ''}"
+                                               data-shift-id="${shift.id}">
+                                            <input type="checkbox" name="shifts" value="${shift.id}"
+                                                   ${selectedShifts.has(shift.id) ? 'checked' : ''}
+                                                   ${!hasSlots ? 'disabled' : ''}
+                                                   onchange="toggleShift(${shift.id}, this.checked)">
+                                            <span class="checkbox-indicator">
+                                                <i class="fas fa-check"></i>
+                                            </span>
+                                            <span class="shift-date">${formatShiftDate(shift.startDate)}</span>
+                                            <span class="shift-slots ${hasSlots && shift.availableSlots <= 3 ? 'low-slots' : ''}">
+                                                ${hasSlots ? `${shift.availableSlots} spots` : 'Full'}
+                                            </span>
+                                            <div class="shift-info-row">
+                                                <span class="shift-time">${formatTime(shift.startTime)} - ${calculateEndTime(shift.startTime, shift.durationHours)} (${shift.durationHours}h)</span>
+                                            </div>
+                                        </label>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += jobShiftsHtml;
+                    }
+                } catch (error) {
+                    console.error(`Error loading shifts for job ${jobId}:`, error);
+                }
+            }
+
+            if (container.innerHTML === '') {
+                container.innerHTML = `
+                    <div class="no-shifts">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>No available shifts for the selected services at this time.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleShift(shiftId, isSelected) {
+            if (isSelected) {
+                selectedShifts.add(shiftId);
+            } else {
+                selectedShifts.delete(shiftId);
+            }
+
+            const item = document.querySelector(`[data-shift-id="${shiftId}"]`);
+            if (item) {
+                item.classList.toggle('selected', isSelected);
+            }
+        }
+
+        async function handleSubmit(e) {
+            e.preventDefault();
+
+            // Validate selections
+            if (selectedJobs.size === 0) {
+                showToast('Please select at least one service.', 'error');
+                return;
+            }
+
+            if (selectedShifts.size === 0) {
+                showToast('Please select at least one shift.', 'error');
+                return;
+            }
+
+            const volunteerData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                skills: document.getElementById('organization').value // Using skills field for organization
+            };
+
+            try {
+                // First, register/find volunteer
+                let volunteer;
+                const checkResponse = await fetch(`/api/volunteers/email/${encodeURIComponent(volunteerData.email)}`);
+                const checkResult = await checkResponse.json();
+
+                if (checkResult.success && checkResult.data) {
+                    volunteer = checkResult.data;
+                } else {
+                    // Register new volunteer
+                    const registerResponse = await fetch('/api/volunteers/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(volunteerData)
+                    });
+                    const registerResult = await registerResponse.json();
+
+                    if (!registerResult.success) {
+                        showToast(registerResult.message, 'error');
+                        return;
+                    }
+                    volunteer = registerResult.data;
+                }
+
+                // Register for each selected shift
+                const registrations = [];
+                const errors = [];
+                const duplicateShiftIds = [];
+                
+                for (const shiftId of selectedShifts) {
+                    try {
+                        const regResponse = await fetch('/api/registrations', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                shiftId: shiftId,
+                                volunteerEmail: volunteerData.email
+                            })
+                        });
+                        const regResult = await regResponse.json();
+
+                        if (regResult.success) {
+                            registrations.push(regResult.data);
+                        } else {
+                            errors.push(regResult.message || 'Registration failed for shift');
+                            // Check if it's a duplicate error
+                            if (regResult.message && regResult.message.includes('already registered')) {
+                                duplicateShiftIds.push(shiftId);
+                            }
+                        }
+                    } catch (shiftError) {
+                        console.error('Error registering for shift:', shiftError);
+                        errors.push('Error registering for shift');
+                    }
+                }
+
+                if (registrations.length > 0) {
+                    // Show success
+                    localStorage.setItem('volunteerEmail', volunteerData.email);
+                    showSuccessMessage(volunteer, registrations);
+                    
+                    // Send confirmation email (async, don't wait)
+                    fetch(`/api/registrations/send-confirmation/${encodeURIComponent(volunteerData.email)}`, {
+                        method: 'POST'
+                    }).then(res => {
+                        if (res.ok) {
+                            console.log('Confirmation email sent');
+                        }
+                    }).catch(err => console.log('Email sending skipped:', err));
+                    
+                    // Also show any errors for shifts that failed
+                    if (errors.length > 0) {
+                        setTimeout(() => {
+                            showToast(`Note: ${errors.length} shift(s) could not be registered - ${errors[0]}`, 'warning');
+                        }, 1000);
+                    }
+                } else if (duplicateShiftIds.length > 0) {
+                    // Show duplicate registration error with options
+                    showDuplicateError(duplicateShiftIds, volunteerData.email);
+                } else if (errors.length > 0) {
+                    // All registrations failed, show the specific error message
+                    showToast(errors[0], 'error');
+                } else {
+                    showToast('Unable to complete registration. Please try again.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            }
+        }
+
+        function showSuccessMessage(volunteer, registrations) {
+            document.getElementById('volunteerSignupForm').style.display = 'none';
+
+            const summaryHtml = `
+                <div class="summary-section">
+                    <h4><i class="fas fa-user"></i> Volunteer</h4>
+                    <p>${volunteer.firstName} ${volunteer.lastName} (${volunteer.email})</p>
+                </div>
+                <div class="summary-section">
+                    <h4><i class="fas fa-calendar-check"></i> Registered Shifts (${registrations.length})</h4>
+                    <div class="checkin-codes-grid">
+                        ${registrations.map(reg => `
+                            <div class="checkin-code-card">
+                                <div class="qr-code-container" id="qr-${reg.checkInCode}"></div>
+                                <div class="checkin-code-text">${reg.checkInCode}</div>
+                                <div class="checkin-shift-info">
+                                    <strong>${reg.volunteerJob?.volunteerJobName || 'Service'}</strong><br>
+                                    <span>${formatShiftDate(reg.volunteerShift?.startDate)} at ${formatTime(reg.volunteerShift?.startTime)}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="checkin-instructions">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Save or screenshot these QR codes. Show them at check-in on the day of your shift.</p>
+                </div>
+            `;
+
+            document.getElementById('registrationSummary').innerHTML = summaryHtml;
+            document.getElementById('successMessage').style.display = 'block';
+
+            // Load QR codes for each registration
+            registrations.forEach(reg => {
+                if (reg.checkInCode) {
+                    loadQRCode(reg.checkInCode);
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function loadQRCode(code) {
+            try {
+                const response = await fetch(`/api/checkin/qr/${code}`);
+                const result = await response.json();
+                if (result.success && result.data.qrImage) {
+                    const container = document.getElementById(`qr-${code}`);
+                    if (container) {
+                        container.innerHTML = `<img src="${result.data.qrImage}" alt="QR Code ${code}" style="width: 120px; height: 120px;">`;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading QR code:', e);
+            }
+        }
+
+        function clearForm() {
+            selectedJobs.clear();
+            selectedShifts.clear();
+            renderJobsGrid();
+            document.getElementById('shiftsCard').style.display = 'none';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBD';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatShiftDate(dateStr) {
+            if (!dateStr) return 'TBD';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+
+        function calculateEndTime(startTime, durationHours) {
+            if (!startTime || !durationHours) return '';
+            const [hours, minutes] = startTime.split(':').map(Number);
+            const totalMinutes = hours * 60 + minutes + (durationHours * 60);
+            const endHours = Math.floor(totalMinutes / 60) % 24;
+            const endMinutes = totalMinutes % 60;
+            const ampm = endHours >= 12 ? 'PM' : 'AM';
+            const hour12 = endHours % 12 || 12;
+            return `${hour12}:${String(endMinutes).padStart(2, '0')} ${ampm}`;
+        }
+    </script>
+</body>
+
+</html>

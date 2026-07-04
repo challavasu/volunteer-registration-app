@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Registrations - VolunteerHub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body class="signup-page">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo">
+                <i class="fas fa-hands-helping"></i>
+                <span>VolunteerHub</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/my-registrations" class="active">My Registrations</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="campaign-banner">
+        <div class="container">
+            <h1>My Registrations</h1>
+            <p>View and manage your volunteer shift registrations</p>
+        </div>
+    </section>
+
+    <!-- Email Lookup Section -->
+    <section class="lookup-section" id="lookupSection">
+        <div class="lookup-card">
+            <h2><i class="fas fa-search"></i> Find Your Registrations</h2>
+            <p>Enter your email address to view your volunteer registrations</p>
+            <form id="lookupForm" class="lookup-form">
+                <input type="email" id="lookupEmail" class="form-input" placeholder="Enter your email address" required>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <i class="fas fa-search"></i> Look Up
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Profile & Registrations Section -->
+    <section class="profile-section" id="profileSection" style="display: none;">
+        <div class="container">
+            <!-- Volunteer Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="volunteerName">Volunteer Name</h2>
+                        <p id="volunteerEmail">email@example.com</p>
+                    </div>
+                    <button class="btn btn-outline" onclick="showLookup()">
+                        <i class="fas fa-sign-out-alt"></i> Switch
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-row">
+                <div class="mini-stat-card">
+                    <i class="fas fa-calendar-check"></i>
+                    <div>
+                        <h3 id="totalRegistrations">0</h3>
+                        <p>Total</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card">
+                    <i class="fas fa-hourglass-half"></i>
+                    <div>
+                        <h3 id="pendingCount">0</h3>
+                        <p>Pending</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <h3 id="confirmedCount">0</h3>
+                        <p>Confirmed</p>
+                    </div>
+                </div>
+                <div class="mini-stat-card">
+                    <i class="fas fa-award"></i>
+                    <div>
+                        <h3 id="completedCount">0</h3>
+                        <p>Completed</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registrations List -->
+            <div class="registrations-container">
+                <div class="registrations-header">
+                    <h2>My Shift Registrations</h2>
+                    <a href="/" class="btn btn-primary btn-small">
+                        <i class="fas fa-plus"></i> Sign Up for More
+                    </a>
+                </div>
+                
+                <div class="registrations-list" id="registrationsList">
+                    <!-- Registrations will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 VolunteerHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/main.js"></script>
+    <script>
+        let currentVolunteer = null;
+        let registrations = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedEmail = localStorage.getItem('volunteerEmail');
+            if (savedEmail) {
+                document.getElementById('lookupEmail').value = savedEmail;
+                lookupVolunteer(savedEmail);
+            }
+        });
+
+        document.getElementById('lookupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('lookupEmail').value;
+            lookupVolunteer(email);
+        });
+
+        async function lookupVolunteer(email) {
+            try {
+                const response = await fetch(`/api/volunteers/email/${encodeURIComponent(email)}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    currentVolunteer = result.data;
+                    localStorage.setItem('volunteerEmail', email);
+                    displayProfile(currentVolunteer);
+                    loadRegistrations(email);
+                } else {
+                    showToast('No volunteer found with this email. Please register first.', 'error');
+                }
+            } catch (error) {
+                showToast('Error looking up profile. Please try again.', 'error');
+            }
+        }
+
+        function displayProfile(volunteer) {
+            document.getElementById('lookupSection').style.display = 'none';
+            document.getElementById('profileSection').style.display = 'block';
+            
+            document.getElementById('volunteerName').textContent = `${volunteer.firstName} ${volunteer.lastName}`;
+            document.getElementById('volunteerEmail').textContent = volunteer.email;
+        }
+
+        async function loadRegistrations(email) {
+            try {
+                const response = await fetch(`/api/registrations/volunteer/email/${encodeURIComponent(email)}`);
+                const result = await response.json();
+                
+                registrations = result.data || [];
+                updateStats();
+                renderRegistrations();
+            } catch (error) {
+                console.error('Error loading registrations:', error);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('totalRegistrations').textContent = registrations.length;
+            document.getElementById('pendingCount').textContent = registrations.filter(r => r.status === 'PENDING').length;
+            document.getElementById('confirmedCount').textContent = registrations.filter(r => r.status === 'CONFIRMED').length;
+            document.getElementById('completedCount').textContent = registrations.filter(r => r.status === 'COMPLETED').length;
+        }
+
+        function renderRegistrations() {
+            const list = document.getElementById('registrationsList');
+            
+            if (registrations.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <h3>No Registrations Yet</h3>
+                        <p>You haven't signed up for any volunteer shifts.</p>
+                        <a href="/" class="btn btn-primary">Browse Campaigns</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = registrations.map(reg => `
+                <div class="registration-card">
+                    <div class="registration-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="registration-info">
+                        <h3>${reg.volunteerJob?.volunteerJobName || 'Volunteer Service'}</h3>
+                        <div class="registration-meta">
+                            <span><i class="fas fa-flag"></i> ${reg.volunteerJob?.campaign?.campaignName || 'Campaign'}</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${formatShiftDate(reg.volunteerShift?.startDate)}</span>
+                            <span><i class="fas fa-clock"></i> ${formatTime(reg.volunteerShift?.startTime)} (${reg.volunteerShift?.durationHours || 0}h)</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${reg.volunteerJob?.locationCity || 'TBD'}</span>
+                        </div>
+                    </div>
+                    <div class="registration-status">
+                        <span class="status-badge status-${reg.status.toLowerCase()}">${reg.status}</span>
+                        <small>Registered: ${formatDate(reg.registrationDate)}</small>
+                    </div>
+                    <div class="registration-actions">
+                        ${reg.status !== 'CANCELLED' && reg.status !== 'COMPLETED' ? `
+                            <button class="btn btn-outline btn-small" onclick="cancelRegistration(${reg.id})">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function cancelRegistration(registrationId) {
+            if (!confirm('Are you sure you want to cancel this registration?')) return;
+            
+            try {
+                const response = await fetch(`/api/registrations/${registrationId}/cancel`, {
+                    method: 'PUT'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('Registration cancelled successfully', 'success');
+                    loadRegistrations(currentVolunteer.email);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Error cancelling registration.', 'error');
+            }
+        }
+
+        function showLookup() {
+            document.getElementById('profileSection').style.display = 'none';
+            document.getElementById('lookupSection').style.display = 'block';
+            localStorage.removeItem('volunteerEmail');
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBD';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function formatShiftDate(dateStr) {
+            if (!dateStr) return 'TBD';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const [hours, minutes] = timeStr.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+</html>
