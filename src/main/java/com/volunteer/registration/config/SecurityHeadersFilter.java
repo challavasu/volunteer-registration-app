@@ -37,14 +37,14 @@ public class SecurityHeadersFilter implements Filter {
             // Set to max-age of 31536000 (1 year), includeSubDomains for subdomains
             httpResponse.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
-            // Content Security Policy - prevent inline scripts but allow inline styles (lower risk)
+            // Content Security Policy
             httpResponse.setHeader("Content-Security-Policy",
                 "default-src 'self'; " +
-                "script-src 'self' cdn.quilljs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
-                "style-src 'self' 'unsafe-inline' cdn.quilljs.com cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com; " +
+                "script-src 'self' 'unsafe-inline' cdn.quilljs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
+                "style-src 'self' 'unsafe-inline' cdn.quilljs.com cdnjs.cloudflare.com cdn.jsdelivr.net fonts.googleapis.com fonts.gstatic.com; " +
                 "font-src 'self' cdnjs.cloudflare.com fonts.gstatic.com; " +
                 "img-src 'self' data:; " +
-                "connect-src 'self'; " +
+                "connect-src 'self' cdn.quilljs.com cdn.jsdelivr.net; " +
                 "frame-ancestors 'self'; " +
                 "base-uri 'self'; " +
                 "form-action 'self'");
