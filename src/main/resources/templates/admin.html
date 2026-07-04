@@ -1940,26 +1940,32 @@
 
         // ========== CAMPAIGN FUNCTIONS ==========
         async function editCampaignById(campaignId) {
+            console.log('🔧 editCampaignById called with ID:', campaignId);
             try {
                 const response = await fetch(`/api/campaigns/${campaignId}`);
                 const result = await response.json();
-                if (result.data) {
+                console.log('📦 API Response:', result);
+                if (result && result.data) {
+                    console.log('✓ Campaign data received:', result.data);
                     openCampaignModal(result.data);
                 } else {
+                    console.error('✗ No campaign data in response');
                     showToast('Error loading campaign', 'error');
                 }
             } catch (e) {
-                console.error('Error loading campaign:', e);
-                showToast('Error loading campaign', 'error');
+                console.error('❌ Error loading campaign:', e);
+                showToast('Error loading campaign: ' + e.message, 'error');
             }
         }
 
         function openCampaignModal(c = null) {
+            console.log('📋 openCampaignModal called with:', c);
             document.getElementById('campaignForm').reset();
             document.getElementById('campaignId').value = '';
             document.getElementById('campaignModalTitle').textContent = c ? 'Edit Campaign' : 'New Campaign';
             if (c) {
-                document.getElementById('campaignId').value = c.id;
+                console.log('✓ Populating form with campaign data');
+                document.getElementById('campaignId').value = c.id || '';
                 document.getElementById('campaignName').value = c.campaignName || '';
                 document.getElementById('campaignOwner').value = c.campaignOwner || '';
                 document.getElementById('campaignType').value = c.type || '';
@@ -1968,7 +1974,8 @@
                 document.getElementById('campaignEndDate').value = c.endDate || '';
                 document.getElementById('campaignDescription').value = c.description || '';
                 document.getElementById('campaignTimeZone').value = c.volunteerWebsiteTimeZone || 'America/Los_Angeles';
-                document.getElementById('campaignActive').checked = c.active;
+                document.getElementById('campaignActive').checked = c.active || false;
+                console.log('✓ Form populated. campaignName field value:', document.getElementById('campaignName').value);
             }
             openModal('campaignModal');
         }
