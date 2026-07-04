@@ -29,6 +29,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +70,10 @@ public class ExcelImportService {
             // Track unique jobs and shifts
             Map<String, VolunteerJob> jobMap = new HashMap<>();
             Map<String, VolunteerShift> shiftMap = new HashMap<>();
+
+            // Track shift dates for campaign start/end date calculation
+            LocalDate earliestShiftDate = null;
+            LocalDate latestShiftDate = null;
 
             // Find header row (row 10 in the sample)
             int headerRow = findHeaderRow(sheet);
@@ -166,6 +172,16 @@ public class ExcelImportService {
                         try {
                             shift = shiftRepository.save(newShift);
                             shiftMap.put(shiftKey, shift);
+
+                            // Track shift dates for campaign date calculation
+                            LocalDate shiftDate = shiftDateTime.toLocalDate();
+                            if (earliestShiftDate == null || shiftDate.isBefore(earliestShiftDate)) {
+                                earliestShiftDate = shiftDate;
+                            }
+                            LocalDate endDate = shiftDate.plusDays((long) Math.ceil(duration / 24.0));
+                            if (latestShiftDate == null || endDate.isAfter(latestShiftDate)) {
+                                latestShiftDate = endDate;
+                            }
                         } catch (org.springframework.dao.DataIntegrityViolationException e) {
                             // Shift with this ID already exists, just skip
                             System.err.println("Shift " + shiftId + " already exists, skipping");
@@ -218,6 +234,13 @@ public class ExcelImportService {
                 }
             }
 
+            // Update campaign dates based on imported shifts
+            if (earliestShiftDate != null && latestShiftDate != null) {
+                campaign.setStartDate(earliestShiftDate);
+                campaign.setEndDate(latestShiftDate);
+                campaignRepository.save(campaign);
+            }
+
             jobsCount = (int) jobRepository.count();
             shiftsCount = (int) shiftRepository.count();
 
@@ -247,18 +270,35 @@ public class ExcelImportService {
             Row row = sheet.getRow(i);
             if (row != null) {
                 String cellValue = getCellValue(row, 0);
-                if (cellValue != null && cellValue.contains("Campaign Name equals")) {
-                    // Extract campaign name after "equals"
-                    String[] parts = cellValue.split("equals");
-                    if (parts.length > 1) {
-                        return parts[1].trim();
+                if (cellValue != null && cellValue.contains("Campaign")) {
+                    // Extract campaign name - handle various formats
+                    String cleanedName = cellValue;
+
+                    // Remove "Campaign:" prefix if present
+                    if (cleanedName.startsWith("Campaign:")) {
+                        cleanedName = cleanedName.substring("Campaign:".length()).trim();
+                    }
+
+                    // Remove "Campaign Name equals" if present
+                    if (cleanedName.contains("Campaign Name equals")) {
+                        String[] parts = cleanedName.split("Campaign Name equals");
+                        if (parts.length > 1) {
+                            cleanedName = parts[1].trim();
+                        }
+                    }
+
+                    // Return the cleaned campaign name if it's not empty and not just "Campaign"
+                    if (!cleanedName.isEmpty() && !cleanedName.equalsIgnoreCase("Campaign")) {
+                        return cleanedName;
                     }
                 }
                 // Also check second column
                 cellValue = getCellValue(row, 1);
-                if (cellValue != null && cellValue.contains("VegFest") ||
-                    (cellValue != null && cellValue.contains("Festival")) ||
-                    (cellValue != null && cellValue.contains("Campaign"))) {
+                if (cellValue != null && (cellValue.contains("VegFest") ||
+                    cellValue.contains("Festival") ||
+                    cellValue.contains("Mela") ||
+                    cellValue.contains("Cleanup") ||
+                    cellValue.contains("Program"))) {
                     return cellValue.trim();
                 }
             }
