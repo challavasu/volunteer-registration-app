@@ -4,193 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <title>Admin Login - VolunteerHub</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        nav.navbar {
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .login-wrapper {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #f5f5f5 0%, #f0f0f0 100%);
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            overflow: hidden;
-        }
-
-        .login-header {
-            background: linear-gradient(135deg, #e91e63, #9c27b0);
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-
-        .login-header h1 {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-
-        .login-header p {
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .login-body {
-            padding: 40px 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-            font-size: 0.9rem;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #e91e63;
-            box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: #999;
-        }
-
-        .error-message {
-            background: #ffebee;
-            border: 1px solid #ef5350;
-            color: #c62828;
-            padding: 12px 14px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-        }
-
-        .error-message i {
-            flex-shrink: 0;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #e91e63, #9c27b0);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(233, 30, 99, 0.3);
-        }
-
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-
-        .demo-info {
-            background: #e3f2fd;
-            border: 1px solid #90caf9;
-            border-radius: 6px;
-            padding: 16px;
-            margin-top: 24px;
-            font-size: 0.85rem;
-            color: #1565c0;
-        }
-
-        .demo-info strong {
-            color: #0d47a1;
-        }
-
-        .demo-info p {
-            margin-bottom: 8px;
-        }
-
-        .demo-info p:last-child {
-            margin-bottom: 0;
-        }
-
-        .role-badge {
-            display: inline-block;
-            background: #fff3e0;
-            color: #e65100;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 4px;
-        }
-
-        .role-badge.admin {
-            background: #e8f5e9;
-            color: #1b5e20;
-        }
-
-        .form-group input:autofill,
-        .form-group input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 1000px white inset !important;
-            -webkit-text-fill-color: #333 !important;
-        }
-    </style>
+    <link href="/css/login.css" rel="stylesheet">
 </head>
 
 <body>
@@ -211,151 +31,53 @@
     <div class="login-wrapper">
         <div class="login-container">
             <div class="login-header">
-            <h1>
-                <i class="fas fa-hands-helping"></i>
-                VolunteerHub Admin
-            </h1>
-            <p>Sign in to your admin account</p>
-        </div>
+                <h1>
+                    <i class="fas fa-hands-helping"></i>
+                    VolunteerHub Admin
+                </h1>
+                <p>Sign in to your admin account</p>
+            </div>
 
-        <div class="login-body">
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="login-body">
+                <form id="loginForm">
+                    <input type="hidden" id="csrfToken" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-                <div id="errorMessage" class="error-message" style="display: none;">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span id="errorText">Invalid credentials</span>
-                </div>
+                    <div id="errorMessage" class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="errorText">Invalid credentials</span>
+                    </div>
 
-                <div th:if="${error}" class="error-message">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span th:text="${error}">Invalid credentials</span>
-                </div>
+                    <div th:if="${error}" class="error-message show">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span th:text="${error}">Invalid credentials</span>
+                    </div>
 
-                <div class="form-group">
-                    <label for="username">
-                        <i class="fas fa-user" style="margin-right: 6px;"></i>
-                        Username
-                    </label>
-                    <input type="text" id="username" placeholder="Enter your username" required>
-                </div>
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user" style="margin-right: 6px;"></i>
+                            Username
+                        </label>
+                        <input type="text" id="username" placeholder="Enter your username" required>
+                    </div>
 
-                <div class="form-group">
-                    <label for="password">
-                        <i class="fas fa-lock" style="margin-right: 6px;"></i>
-                        Password
-                    </label>
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div>
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock" style="margin-right: 6px;"></i>
+                            Password
+                        </label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
 
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Sign In
-                </button>
-            </form>
-
-            <script>
-                async function handleLogin(e) {
-                    e.preventDefault();
-
-                    const username = document.getElementById('username').value.trim();
-                    const password = document.getElementById('password').value;
-
-                    console.log('🔐 Login attempt - Username:', username);
-
-                    if (!username || !password) {
-                        showError('Please enter username and password');
-                        return;
-                    }
-
-                    const submitBtn = document.querySelector('.submit-btn');
-                    submitBtn.disabled = true;
-                    submitBtn.textContent = 'Signing in...';
-
-                    try {
-                        const csrfElement = document.getElementById('csrfToken');
-                        if (!csrfElement) {
-                            console.error('CSRF token element not found');
-                            showError('Security error: CSRF token missing');
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                            return;
-                        }
-
-                        const csrfToken = csrfElement.value || csrfElement.getAttribute('value');
-                        const csrfParamName = csrfElement.getAttribute('name') || '_csrf';
-
-                        console.log('🔐 CSRF Token extracted:', csrfToken ? 'yes' : 'NO');
-                        console.log('🔐 CSRF Param Name:', csrfParamName);
-
-                        // Build form data as URL encoded
-                        const params = new URLSearchParams();
-                        params.append('username', username);
-                        params.append('password', password);
-                        params.append(csrfParamName, csrfToken);
-
-                        console.log('🔐 Sending to /api/auth/login...');
-
-                        const response = await fetch('/api/auth/login', {
-                            method: 'POST',
-                            body: params,
-                            credentials: 'same-origin',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-CSRF-TOKEN': csrfToken
-                            }
-                        });
-
-                        console.log('Response status:', response.status);
-                        console.log('Response headers:', response.headers);
-
-                        const responseText = await response.text();
-                        console.log('Raw response:', responseText);
-
-                        let data;
-                        try {
-                            data = JSON.parse(responseText);
-                        } catch (e) {
-                            console.error('Failed to parse JSON:', responseText);
-                            showError('Server error: Invalid response');
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                            return;
-                        }
-
-                        console.log('Parsed data:', data);
-
-                        if (data.success === true) {
-                            console.log('✅ Login successful! Redirecting...');
-                            // Wait a moment then redirect
-                            setTimeout(() => {
-                                window.location.href = '/admin';
-                            }, 500);
-                        } else {
-                            console.log('❌ Login failed. Success:', data.success, 'Message:', data.message);
-                            showError(data.message || 'Invalid username or password');
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                        }
-                    } catch (error) {
-                        console.error('❌ Error:', error);
-                        showError('Error: ' + error.message);
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-                    }
-                }
-
-                function showError(message) {
-                    const errorDiv = document.getElementById('errorMessage');
-                    const errorText = document.getElementById('errorText');
-                    errorText.textContent = message;
-                    errorDiv.style.display = 'flex';
-                }
-            </script>
-
-        </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
+
+    <script src="/js/login.js"></script>
 </body>
 
 </html>

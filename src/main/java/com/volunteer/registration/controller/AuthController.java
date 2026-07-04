@@ -32,31 +32,6 @@ public class AuthController {
         return "login";
     }
 
-    @PostMapping("/login")
-    public String login(
-            @RequestParam String username,
-            @RequestParam String password,
-            HttpSession session,
-            Model model) {
-
-        Optional<User> userOpt = authService.authenticate(username, password);
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            session.setAttribute("userId", user.getId());
-            session.setAttribute("username", user.getUsername());
-            session.setAttribute("userRole", user.getRole());
-
-            setupSecurityContext(user, session);
-            System.out.println("✓ Login successful for user: " + username);
-            return "redirect:/admin";
-        } else {
-            System.out.println("✗ Login failed for user: " + username);
-            model.addAttribute("error", "Invalid username or password");
-            return "login";
-        }
-    }
-
     @PostMapping("/api/auth/login")
     public ResponseEntity<Map<String, Object>> apiLogin(
             @RequestParam String username,
