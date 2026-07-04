@@ -1989,7 +1989,14 @@
                 return;
             }
             try {
-                const res = await fetch(`/api/campaigns/${id}`, { method: 'DELETE' });
+                const csrfToken = getCsrfToken();
+                const res = await fetch(`/api/campaigns/${id}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
                 const result = await res.json();
                 if (result.success) {
                     showToast('Campaign deleted successfully', 'success');
@@ -2184,8 +2191,13 @@
             }
             
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(`/api/jobs/${jobId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
                 });
                 const result = await res.json();
                 if (result.success) {
@@ -2324,10 +2336,15 @@
             if (!confirm(`Are you sure you want to delete the shift "${shiftInfo}"?\n\nThis will also delete all registrations for this shift. This action cannot be undone.`)) {
                 return;
             }
-            
+
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(`/api/shifts/${shiftId}`, {
-                    method: 'DELETE'
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
                 });
                 const result = await res.json();
                 if (result.success) {
@@ -3564,7 +3581,14 @@
             if (!userDeleteId) return;
 
             try {
-                const res = await fetch(`/api/users/${userDeleteId}`, { method: 'DELETE' });
+                const csrfToken = getCsrfToken();
+                const res = await fetch(`/api/users/${userDeleteId}`, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
                 const result = await res.json();
                 if (result.success) {
                     showToast('User deleted successfully', 'success');
