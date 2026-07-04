@@ -2031,11 +2031,16 @@
             const sourceId = document.getElementById('cloneSourceCampaignId').value;
             const newName = document.getElementById('cloneNewName').value;
             const newStartDate = document.getElementById('cloneNewStartDate').value;
-            
+
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(`/api/campaigns/${sourceId}/clone`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify({ newName, newStartDate })
                 });
                 const result = await res.json();
@@ -2162,11 +2167,16 @@
             e.preventDefault();
             const sourceId = document.getElementById('cloneSourceJobId').value;
             const newName = document.getElementById('cloneNewJobName').value;
-            
+
             try {
+                const csrfToken = getCsrfToken();
                 const res = await fetch(`/api/jobs/${sourceId}/clone`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
                     body: JSON.stringify({ newName })
                 });
                 const result = await res.json();
