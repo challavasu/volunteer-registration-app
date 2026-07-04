@@ -367,6 +367,7 @@
             <!-- Excel Import Tab -->
             <div id="excel" class="tab-content active">
                 <form method="post" action="/import/excel" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <div class="section-title"><i class="fas fa-file-excel"></i> Campaign Excel File</div>
                     <div class="file-group">
                         <label for="excel_file">
@@ -417,6 +418,7 @@
             <!-- CSV Import Tab -->
             <div id="csv" class="tab-content">
                 <form method="post" action="/import/csv" enctype="multipart/form-data">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                     <div class="section-title"><i class="fas fa-calendar"></i> Campaigns</div>
                 <div class="file-group">
                     <label for="campaigns_file">
