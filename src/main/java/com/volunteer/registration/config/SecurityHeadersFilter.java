@@ -40,8 +40,8 @@ public class SecurityHeadersFilter implements Filter {
             // Content Security Policy - prevent inline scripts but allow inline styles (lower risk)
             httpResponse.setHeader("Content-Security-Policy",
                 "default-src 'self'; " +
-                "script-src 'self' cdn.quilljs.com cdnjs.cloudflare.com; " +
-                "style-src 'self' 'unsafe-inline' cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com; " +
+                "script-src 'self' cdn.quilljs.com cdnjs.cloudflare.com cdn.jsdelivr.net; " +
+                "style-src 'self' 'unsafe-inline' cdn.quilljs.com cdnjs.cloudflare.com fonts.googleapis.com fonts.gstatic.com; " +
                 "font-src 'self' cdnjs.cloudflare.com fonts.gstatic.com; " +
                 "img-src 'self' data:; " +
                 "connect-src 'self'; " +
