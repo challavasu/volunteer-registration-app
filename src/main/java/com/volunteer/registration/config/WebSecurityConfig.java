@@ -26,12 +26,18 @@ public class WebSecurityConfig {
                 .requestMatchers("/login").permitAll()
                 .requestMatchers("/logout").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/debug/**").permitAll()
-                .requestMatchers("/api/campaigns/**").permitAll()
-                .requestMatchers("/api/volunteers/**").permitAll()
-                .requestMatchers("/api/registrations/**").permitAll()
-                .requestMatchers("/api/jobs/**").permitAll()
-                .requestMatchers("/api/shifts/**").permitAll()
+                // Public APIs for volunteer signup (read-only)
+                .requestMatchers("GET", "/api/campaigns/active").permitAll()
+                .requestMatchers("GET", "/api/campaigns/*").permitAll()
+                .requestMatchers("GET", "/api/jobs/campaign/*/available").permitAll()
+                .requestMatchers("GET", "/api/shifts/job/*/available").permitAll()
+                .requestMatchers("POST", "/api/volunteers/register").permitAll()
+                .requestMatchers("POST", "/api/registrations").permitAll()
+                .requestMatchers("POST", "/api/registrations/send-confirmation/**").permitAll()
+                .requestMatchers("GET", "/api/registrations/volunteer/email/**").permitAll()
+                .requestMatchers("GET", "/api/checkin/**").permitAll()
+                // Protected APIs - require authentication
+                .requestMatchers("/api/**").authenticated()
                 .anyRequest().authenticated()
             )
             // Security headers
@@ -62,9 +68,6 @@ public class WebSecurityConfig {
                 .permitAll()
             );
 
-        // H2 Console CSRF exception (development only)
-        http.csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console/**"));
-        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable().frameOptions(frameOptions2 -> frameOptions2.sameOrigin())));
 
         return http.build();
     }
