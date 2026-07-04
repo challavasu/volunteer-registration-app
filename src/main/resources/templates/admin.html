@@ -1751,34 +1751,34 @@
 
         // Override modal-opening functions for LEAD users
         const originalOpenCampaignModal = window.openCampaignModal;
-        window.openCampaignModal = function() {
+        window.openCampaignModal = function(...args) {
             if (!canEditOrDelete()) return;
-            originalOpenCampaignModal.call(this);
+            originalOpenCampaignModal.call(this, ...args);
         };
 
         const originalOpenJobModal = window.openJobModal;
-        window.openJobModal = function() {
+        window.openJobModal = function(...args) {
             if (!canEditOrDelete()) return;
-            originalOpenJobModal.call(this);
+            originalOpenJobModal.call(this, ...args);
         };
 
         const originalOpenShiftModal = window.openShiftModal;
-        window.openShiftModal = function() {
+        window.openShiftModal = function(...args) {
             if (!canEditOrDelete()) return;
-            originalOpenShiftModal.call(this);
+            originalOpenShiftModal.call(this, ...args);
         };
 
         const originalOpenVolunteerModal = window.openVolunteerModal;
-        window.openVolunteerModal = function() {
+        window.openVolunteerModal = function(...args) {
             if (!canEditOrDelete()) return;
-            originalOpenVolunteerModal.call(this);
+            originalOpenVolunteerModal.call(this, ...args);
         };
 
         const originalOpenEmailTemplateModal = window.openEmailTemplateModal;
         if (originalOpenEmailTemplateModal) {
-            window.openEmailTemplateModal = function() {
+            window.openEmailTemplateModal = function(...args) {
                 if (!canEditOrDelete()) return;
-                originalOpenEmailTemplateModal.call(this);
+                originalOpenEmailTemplateModal.call(this, ...args);
             };
         }
 
