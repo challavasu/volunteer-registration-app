@@ -17,7 +17,7 @@ public class WebSecurityConfig {
             // Enable CSRF protection with custom repository
             .csrf(csrf -> csrf
                 .csrfTokenRepository(csrfTokenRepository())
-                .ignoringRequestMatchers("/api/**", "/login", "/logout")
+                .ignoringRequestMatchers("/login", "/logout")
             )
             // Authorization rules
             .authorizeHttpRequests(authz -> authz

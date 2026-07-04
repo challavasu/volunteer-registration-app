@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/volunteers")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class VolunteerController {
 
     private final VolunteerManagementService volunteerService;

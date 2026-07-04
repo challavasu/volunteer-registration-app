@@ -92,23 +92,6 @@ public class AuthController {
         return "redirect:/login";
     }
 
-    @GetMapping("/api/debug/check-admin")
-    public ResponseEntity<String> checkAdminUser() {
-        Optional<User> admin = authService.getUserByUsername("admin");
-        if (admin.isPresent()) {
-            User user = admin.get();
-            return ResponseEntity.ok("✓ Admin user EXISTS\n" +
-                    "ID: " + user.getId() + "\n" +
-                    "Username: " + user.getUsername() + "\n" +
-                    "Role: " + user.getRole() + "\n" +
-                    "Active: " + user.isActive() + "\n" +
-                    "\nTest login with:\n" +
-                    "Username: admin\n" +
-                    "Password: admin123");
-        } else {
-            return ResponseEntity.status(404).body("✗ Admin user NOT FOUND in database");
-        }
-    }
 
     private void setupSecurityContext(User user, HttpSession session) {
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();

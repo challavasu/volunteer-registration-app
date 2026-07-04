@@ -18,7 +18,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/email-templates")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class EmailTemplateController {
 
     private final EmailTemplateRepository templateRepository;

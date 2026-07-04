@@ -323,8 +323,14 @@ public class DataInitializer implements CommandLineRunner {
 
     private void initializeDefaultUser() {
         if (userRepository.findByUsername("admin").isEmpty()) {
-            authService.createUser("admin", "admin123", User.UserRole.ADMIN);
-            System.out.println("Default admin user created - Username: admin, Password: admin123");
+            String adminPassword = System.getenv("ADMIN_PASSWORD");
+            if (adminPassword == null || adminPassword.isBlank()) {
+                System.err.println("⚠️  WARNING: Admin user not created. Set ADMIN_PASSWORD environment variable.");
+                System.err.println("   Example: export ADMIN_PASSWORD='your-secure-password'");
+                return;
+            }
+            authService.createUser("admin", adminPassword, User.UserRole.ADMIN);
+            System.out.println("✓ Admin user created successfully (password set via ADMIN_PASSWORD environment variable)");
         }
     }
 

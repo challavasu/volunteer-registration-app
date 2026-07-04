@@ -25,7 +25,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/checkin")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class CheckInController {
 
     private final RegistrationRepository registrationRepository;

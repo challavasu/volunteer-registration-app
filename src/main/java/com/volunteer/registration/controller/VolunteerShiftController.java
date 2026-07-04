@@ -16,7 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/shifts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class VolunteerShiftController {
 
     private final VolunteerShiftService shiftService;
