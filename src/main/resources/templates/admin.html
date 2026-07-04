@@ -1939,6 +1939,21 @@
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
         // ========== CAMPAIGN FUNCTIONS ==========
+        async function editCampaignById(campaignId) {
+            try {
+                const response = await fetch(`/api/campaigns/${campaignId}`);
+                const result = await response.json();
+                if (result.data) {
+                    openCampaignModal(result.data);
+                } else {
+                    showToast('Error loading campaign', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading campaign:', e);
+                showToast('Error loading campaign', 'error');
+            }
+        }
+
         function openCampaignModal(c = null) {
             document.getElementById('campaignForm').reset();
             document.getElementById('campaignId').value = '';
@@ -2102,7 +2117,7 @@
                         <td class="action-buttons">
                             <button class="btn btn-outline btn-small" title="Clone Campaign" onclick="event.stopPropagation(); ${isAdmin ? `openCloneCampaignModal(${c.id}, '${c.campaignName.replace(/'/g, "\\'")}', '${c.startDate || ''}')` : `alert('You do not have permission. Only ADMIN can clone campaigns.')`}" ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-copy"></i></button>
                             <button class="btn btn-outline btn-small" title="Export Volunteers" onclick="event.stopPropagation(); exportCampaignVolunteers(${c.id})"><i class="fas fa-download"></i></button>
-                            <button class="btn btn-outline btn-small" title="Edit" onclick='event.stopPropagation(); ${isAdmin ? `openCampaignModal(${JSON.stringify(c)})` : `alert('You do not have permission. Only ADMIN can edit campaigns.')`}' ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline btn-small" title="Edit" onclick="event.stopPropagation(); ${isAdmin ? `editCampaignById(${c.id})` : `alert('You do not have permission. Only ADMIN can edit campaigns.')`}" ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-edit"></i></button>
                             <button class="btn btn-danger btn-small" title="Delete" onclick="event.stopPropagation(); ${isAdmin ? `deleteCampaign(${c.id}, '${c.campaignName.replace(/'/g, "\\'")}')` : `alert('You do not have permission. Only ADMIN can delete campaigns.')`}" ${!isAdmin ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : ''}><i class="fas fa-trash"></i></button>
                             <button class="btn btn-primary btn-small" title="View Jobs" onclick="drillDownToCampaign(${c.id})"><i class="fas fa-arrow-right"></i></button>
                         </td>
@@ -2112,6 +2127,21 @@
         }
 
         // ========== JOB FUNCTIONS ==========
+        async function editJobById(jobId) {
+            try {
+                const response = await fetch(`/api/jobs/${jobId}`);
+                const result = await response.json();
+                if (result.data) {
+                    openJobModal(result.data);
+                } else {
+                    showToast('Error loading job', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading job:', e);
+                showToast('Error loading job', 'error');
+            }
+        }
+
         function openJobModal(j = null) {
             document.getElementById('jobForm').reset();
             document.getElementById('jobId').value = '';
@@ -2303,7 +2333,7 @@
                         <td><span class="status-badge status-${j.displayOnWebsite ? 'confirmed' : 'cancelled'}">${j.displayOnWebsite ? 'Enabled' : 'Disabled'}</span></td>
                         <td class="action-buttons">
                             <button class="btn btn-outline btn-small" title="Clone Job" onclick="event.stopPropagation(); openCloneJobModal(${j.id}, '${j.volunteerJobName.replace(/'/g, "\\'")}')"><i class="fas fa-copy"></i></button>
-                            <button class="btn btn-outline btn-small" title="Edit Job" onclick='event.stopPropagation(); openJobModal(${JSON.stringify(j)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline btn-small" title="Edit Job" onclick="event.stopPropagation(); editJobById(${j.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-danger btn-small" title="Delete Job" onclick="event.stopPropagation(); deleteJob(${j.id}, '${j.volunteerJobName.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button>
                             <button class="btn btn-primary btn-small" title="View Shifts" onclick="drillDownToJob(${j.id})"><i class="fas fa-arrow-right"></i></button>
                         </td>
@@ -2314,6 +2344,21 @@
         }
 
         // ========== SHIFT FUNCTIONS ==========
+        async function editShiftById(shiftId) {
+            try {
+                const response = await fetch(`/api/shifts/${shiftId}`);
+                const result = await response.json();
+                if (result.data) {
+                    openShiftModal(result.data);
+                } else {
+                    showToast('Error loading shift', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading shift:', e);
+                showToast('Error loading shift', 'error');
+            }
+        }
+
         function openShiftModal(s = null) {
             document.getElementById('shiftForm').reset();
             document.getElementById('shiftId').value = '';
@@ -2430,7 +2475,7 @@
                         <td><strong>${registeredCount}</strong> / ${s.desiredNumVolunteers || '∞'} ${isFull ? '<span class="status-badge status-completed">Full</span>' : ''}</td>
                         <td class="action-buttons">
                             <button class="btn btn-primary btn-small" onclick="viewShiftRegistrations(${s.id})" title="View Registrations"><i class="fas fa-users"></i></button>
-                            <button class="btn btn-outline btn-small" onclick='openShiftModal(${JSON.stringify(s)})' title="Edit Shift"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-outline btn-small" onclick="editShiftById(${s.id})" title="Edit Shift"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-danger btn-small" onclick="deleteShift(${s.id}, '${formatDate(s.startDate)} ${formatTime(s.startTime)}')" title="Delete Shift"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>`;
@@ -2440,6 +2485,21 @@
         }
 
         // ========== VOLUNTEER FUNCTIONS ==========
+        async function editVolunteerById(volunteerId) {
+            try {
+                const response = await fetch(`/api/volunteers/${volunteerId}`);
+                const result = await response.json();
+                if (result.data) {
+                    openVolunteerModal(result.data);
+                } else {
+                    showToast('Error loading volunteer', 'error');
+                }
+            } catch (e) {
+                console.error('Error loading volunteer:', e);
+                showToast('Error loading volunteer', 'error');
+            }
+        }
+
         function openVolunteerModal(v = null) {
             document.getElementById('volunteerForm').reset();
             document.getElementById('volunteerId').value = '';
@@ -2588,7 +2648,7 @@
                         <td><a href="mailto:${v.email}">${v.email}</a></td>
                         <td>${v.phoneNumber || '-'}</td>
                         <td><span class="count-badge">${v.registrationCount || 0}</span></td>
-                        <td class="action-buttons"><button class="btn btn-outline btn-small" onclick='openVolunteerModal(${JSON.stringify(v)})'><i class="fas fa-edit"></i></button></td>
+                        <td class="action-buttons"><button class="btn btn-outline btn-small" onclick="editVolunteerById(${v.id})"><i class="fas fa-edit"></i></button></td>
                     </tr>`).join('');
             } else { tbody.innerHTML = '<tr><td colspan="5" class="no-data">No volunteers found</td></tr>'; }
             renderPagination('volunteerPagination', filteredVolunteers.length, currentPage.volunteers, pageSize.volunteers, 'changeVolunteerPage');
