@@ -273,8 +273,20 @@
                     submitBtn.textContent = 'Signing in...';
 
                     try {
-                        const csrfToken = document.getElementById('csrfToken').value;
-                        const csrfParamName = document.getElementById('csrfToken').getAttribute('name') || '_csrf';
+                        const csrfElement = document.getElementById('csrfToken');
+                        if (!csrfElement) {
+                            console.error('CSRF token element not found');
+                            showError('Security error: CSRF token missing');
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+                            return;
+                        }
+
+                        const csrfToken = csrfElement.value || csrfElement.getAttribute('value');
+                        const csrfParamName = csrfElement.getAttribute('name') || '_csrf';
+
+                        console.log('🔐 CSRF Token extracted:', csrfToken ? 'yes' : 'NO');
+                        console.log('🔐 CSRF Param Name:', csrfParamName);
 
                         // Build form data as URL encoded
                         const params = new URLSearchParams();
@@ -282,7 +294,7 @@
                         params.append('password', password);
                         params.append(csrfParamName, csrfToken);
 
-                        console.log('Sending to /api/auth/login...');
+                        console.log('🔐 Sending to /api/auth/login...');
 
                         const response = await fetch('/api/auth/login', {
                             method: 'POST',
