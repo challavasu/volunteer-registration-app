@@ -156,3 +156,7 @@ nav.navbar {
     -webkit-box-shadow: 0 0 0 1000px white inset !important;
     -webkit-text-fill-color: #333 !important;
 }
+
+.icon-margin {
+    margin-right: 6px;
+}
