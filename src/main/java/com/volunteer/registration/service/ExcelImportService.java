@@ -50,11 +50,11 @@ public class ExcelImportService {
             Workbook workbook = new XSSFWorkbook(file.getInputStream());
             Sheet sheet = workbook.getSheetAt(0);
 
-            // Extract campaign name from the title row
-            String campaignName = extractCampaignName(sheet);
+            // Extract campaign name from the sheet or filename
+            String campaignName = extractCampaignName(sheet, file.getOriginalFilename());
             if (campaignName == null || campaignName.isEmpty()) {
                 result.put("success", false);
-                result.put("message", "Could not find campaign name in Excel file");
+                result.put("message", "Could not find campaign name in Excel file. Make sure the file has a campaign name in the first few rows or in the filename.");
                 return result;
             }
 
@@ -264,13 +264,14 @@ public class ExcelImportService {
         return result;
     }
 
-    private String extractCampaignName(Sheet sheet) {
-        // Look for campaign name in first few rows
+    private String extractCampaignName(Sheet sheet, String filename) {
+        // First, try to find campaign name in the sheet
         for (int i = 0; i < 20; i++) {
             Row row = sheet.getRow(i);
             if (row != null) {
+                // Check first column
                 String cellValue = getCellValue(row, 0);
-                if (cellValue != null && cellValue.contains("Campaign")) {
+                if (cellValue != null && !cellValue.isEmpty()) {
                     // Extract campaign name - handle various formats
                     String cleanedName = cellValue;
 
@@ -288,22 +289,58 @@ public class ExcelImportService {
                     }
 
                     // Return the cleaned campaign name if it's not empty and not just "Campaign"
-                    if (!cleanedName.isEmpty() && !cleanedName.equalsIgnoreCase("Campaign")) {
+                    if (!cleanedName.isEmpty() && !cleanedName.equalsIgnoreCase("Campaign")
+                        && !cleanedName.equalsIgnoreCase("Campaign:")) {
                         return cleanedName;
                     }
                 }
-                // Also check second column
+
+                // Also check second column for common campaign keywords
                 cellValue = getCellValue(row, 1);
                 if (cellValue != null && (cellValue.contains("VegFest") ||
                     cellValue.contains("Festival") ||
                     cellValue.contains("Mela") ||
                     cellValue.contains("Cleanup") ||
-                    cellValue.contains("Program"))) {
-                    return cellValue.trim();
+                    cellValue.contains("Program") ||
+                    cellValue.contains("Ratha") ||
+                    cellValue.contains("Campaign"))) {
+                    String cleanedName = cellValue.trim();
+                    if (cleanedName.startsWith("Campaign:")) {
+                        cleanedName = cleanedName.substring("Campaign:".length()).trim();
+                    }
+                    if (!cleanedName.isEmpty()) {
+                        return cleanedName;
+                    }
                 }
             }
         }
+
+        // Fallback: extract campaign name from filename
+        if (filename != null && !filename.isEmpty()) {
+            String campaignName = extractNameFromFilename(filename);
+            if (campaignName != null && !campaignName.isEmpty()) {
+                return campaignName;
+            }
+        }
+
         return null;
+    }
+
+    private String extractNameFromFilename(String filename) {
+        // Remove file extension
+        String nameWithoutExt = filename;
+        if (filename.contains(".")) {
+            nameWithoutExt = filename.substring(0, filename.lastIndexOf("."));
+        }
+
+        // Remove common suffixes like "-Volunteers", "-2026-07-04-19-14-33", etc.
+        String campaignName = nameWithoutExt;
+        campaignName = campaignName.replaceAll("-Volunteers.*", "");
+        campaignName = campaignName.replaceAll("\\d{4}-\\d{2}-\\d{2}.*", "");
+        campaignName = campaignName.replaceAll("-\\d+$", "");
+        campaignName = campaignName.trim();
+
+        return campaignName.isEmpty() ? null : campaignName;
     }
 
     private int findHeaderRow(Sheet sheet) {
